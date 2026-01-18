@@ -1,0 +1,128 @@
+[
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BAHAN IKAN NILA NATINOMBUR",
+        "index": 8,
+        "item_name": "cabe rawit hijau",
+        "quantity": 1,
+        "unit": "kg",
+        "product_code": "CABAI_RAWIT_HIJAU",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BAHAN IKAN NILA NATINOMBUR",
+        "index": 9,
+        "item_name": "cabe rawit merah",
+        "quantity": 1,
+        "unit": "kg",
+        "product_code": "CABAI_RAWIT_MERAH",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BAHAN IKAN NILA NATINOMBUR",
+        "index": 10,
+        "item_name": "cabe merah",
+        "quantity": 8,
+        "unit": "kg",
+        "product_code": "CABAI_MERAH",
+        "product": {
+            "id": 1,
+            "code": "CABAI_MERAH",
+            "name": "Cabai Merah Besar",
+            "plu_number": "9001"
+        }
+    },
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BAHAN TEMPE CRISPY",
+        "index": 19,
+        "item_name": "Tepung Terigu",
+        "quantity": 6,
+        "unit": "kg",
+        "product_code": "TEPUNG_TERIGU",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BAHAN TEMPE CRISPY",
+        "index": 20,
+        "item_name": "Kunyit Bubuk",
+        "quantity": 1,
+        "unit": "Renceng",
+        "product_code": "KUNYIT_BUBUK",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 23,
+        "item_name": "Pakcoy",
+        "quantity": 170,
+        "unit": "kg",
+        "product_code": "PAKCOY",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 24,
+        "item_name": "Bawang Putih",
+        "quantity": 4,
+        "unit": "kg",
+        "product_code": "BAWANG_PUTIH",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 25,
+        "item_name": "Saus Tiram",
+        "quantity": 4,
+        "unit": "botol",
+        "product_code": "SAUS_TIRAM",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 26,
+        "item_name": "garam halus",
+        "quantity": 3,
+        "unit": "bungkus",
+        "product_code": "GARAM_HALUS",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 28,
+        "item_name": "tepung Maizena",
+        "quantity": 5,
+        "unit": "kg",
+        "product_code": "TEPUNG_MAIZENA",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 2316,
+        "group": "BUAH",
+        "index": 30,
+        "item_name": "melon",
+        "quantity": 160,
+        "unit": "kg",
+        "product_code": "MELON",
+        "product": null
+    }
+]

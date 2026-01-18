@@ -1,0 +1,160 @@
+[
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN IKAN NILA NATINOMBUR",
+        "index": 8,
+        "item_name": "cabe rawit hijau",
+        "quantity": 0.5,
+        "unit": "kg",
+        "product_code": "CABAI_RAWIT_HIJAU",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN IKAN NILA NATINOMBUR",
+        "index": 9,
+        "item_name": "cabe rawit merah",
+        "quantity": 0.5,
+        "unit": "kg",
+        "product_code": "CABAI_RAWIT_MERAH",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN IKAN NILA NATINOMBUR",
+        "index": 10,
+        "item_name": "cabe merah",
+        "quantity": 6,
+        "unit": "kg",
+        "product_code": "CABAI_MERAH",
+        "product": {
+            "id": 1,
+            "code": "CABAI_MERAH",
+            "name": "Cabai Merah Besar",
+            "plu_number": "9001"
+        }
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN TEMPE CRISPY",
+        "index": 19,
+        "item_name": "Tepung Terigu",
+        "quantity": 3,
+        "unit": "kg",
+        "product_code": "TEPUNG_TERIGU",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN TEMPE CRISPY",
+        "index": 20,
+        "item_name": "Kunyit Bubuk",
+        "quantity": 1,
+        "unit": "Renceng",
+        "product_code": "KUNYIT_BUBUK",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN TEMPE CRISPY",
+        "index": 22,
+        "item_name": "Minyak",
+        "quantity": 10,
+        "unit": "kg",
+        "product_code": "MINYAK_GORENG_SAWIT",
+        "product": {
+            "id": 4,
+            "code": "MINYAK_GORENG_SAWIT",
+            "name": "Minyak Goreng Sawit",
+            "plu_number": null
+        }
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 23,
+        "item_name": "Pakcoy",
+        "quantity": 125,
+        "unit": "kg",
+        "product_code": "PAKCOY",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 24,
+        "item_name": "Bawang Putih",
+        "quantity": 2,
+        "unit": "kg",
+        "product_code": "BAWANG_PUTIH",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 25,
+        "item_name": "Saus Tiram",
+        "quantity": 2,
+        "unit": "botol",
+        "product_code": "SAUS_TIRAM",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 26,
+        "item_name": "garam halus",
+        "quantity": 3,
+        "unit": "bungkus",
+        "product_code": "GARAM_HALUS",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 29,
+        "item_name": "tepung Maizena",
+        "quantity": 3,
+        "unit": "kg",
+        "product_code": "TEPUNG_MAIZENA",
+        "product": null
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+        "index": 30,
+        "item_name": "Minyak",
+        "quantity": 5,
+        "unit": "kg",
+        "product_code": "MINYAK_GORENG_SAWIT",
+        "product": {
+            "id": 4,
+            "code": "MINYAK_GORENG_SAWIT",
+            "name": "Minyak Goreng Sawit",
+            "plu_number": null
+        }
+    },
+    {
+        "day": 1,
+        "pm_target": 1710,
+        "group": "BUAH",
+        "index": 31,
+        "item_name": "Pisang",
+        "quantity": 108,
+        "unit": "kg",
+        "product_code": null,
+        "product": null
+    }
+]

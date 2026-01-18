@@ -1,0 +1,101 @@
+[
+    {
+        "product_code": "CABAI_RAWIT_HIJAU",
+        "product_name": "cabe rawit hijau",
+        "plu_number": null,
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 0.5,
+        "unit": "kg"
+    },
+    {
+        "product_code": "CABAI_RAWIT_MERAH",
+        "product_name": "cabe rawit merah",
+        "plu_number": null,
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 0.5,
+        "unit": "kg"
+    },
+    {
+        "product_code": "CABAI_MERAH",
+        "product_name": "Cabai Merah Besar",
+        "plu_number": "9001",
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 8,
+        "unit": "kg"
+    },
+    {
+        "product_code": "TEPUNG_TERIGU",
+        "product_name": "Tepung Terigu",
+        "plu_number": null,
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 3,
+        "unit": "kg"
+    },
+    {
+        "product_code": "KUNYIT_BUBUK",
+        "product_name": "Kunyit Bubuk",
+        "plu_number": null,
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 1,
+        "unit": "Renceng"
+    },
+    {
+        "product_code": "MINYAK_GORENG_SAWIT",
+        "product_name": "Minyak Goreng Sawit",
+        "plu_number": null,
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 65,
+        "unit": "kg"
+    },
+    {
+        "product_code": "PAKCOY",
+        "product_name": "Pakcoy",
+        "plu_number": null,
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 125,
+        "unit": "kg"
+    },
+    {
+        "product_code": "BAWANG_PUTIH",
+        "product_name": "Bawang Putih",
+        "plu_number": null,
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 4,
+        "unit": "kg"
+    },
+    {
+        "product_code": "SAUS_TIRAM",
+        "product_name": "Saus Tiram",
+        "plu_number": null,
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 2,
+        "unit": "botol"
+    },
+    {
+        "product_code": "GARAM_HALUS",
+        "product_name": "garam halus",
+        "plu_number": null,
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 3,
+        "unit": "bungkus"
+    },
+    {
+        "product_code": "TEPUNG_MAIZENA",
+        "product_name": "tepung Maizena",
+        "plu_number": null,
+        "day": 1,
+        "pm_target": 1710,
+        "total_quantity": 3,
+        "unit": "kg"
+    }
+]

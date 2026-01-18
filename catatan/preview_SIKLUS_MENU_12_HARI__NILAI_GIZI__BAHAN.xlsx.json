@@ -1,0 +1,433 @@
+[
+    {
+        "name": "sheet1",
+        "path": "xl\/worksheets\/sheet1.xml",
+        "rows": [
+            [
+                "SIKLUS MENU 12 HARI JANUARI 2026",
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+            ],
+            [
+                " untuk PM=1710",
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+            ],
+            [
+                "HARI 1",
+                "                             NILAI GIZI ",
+                "                             BAHAN MAKANAN"
+            ],
+            [
+                "Nasi Putih",
+                "Porsi Kecil (TK,PAUD,SD KELAS 1-3)",
+                "NO",
+                "URAIAN",
+                "QTY",
+                "SATUAN"
+            ],
+            [
+                "Ikan Nila Natinombur",
+                "Bahan Makanan",
+                "Berat (gr)",
+                "Energi (kkal)",
+                "Protein (gr)",
+                "Lemak (gr)",
+                "Karbohidrat (gr)",
+                "Serat  (gr)",
+                "1",
+                "Beras",
+                "95",
+                "Kg"
+            ],
+            [
+                "Tempe Crispy",
+                "Nasi",
+                "100",
+                "180",
+                "3",
+                "0.3",
+                "39.799999999999997",
+                "0",
+                "",
+                "BAHAN IKAN NILA NATINOMBUR",
+                "",
+                ""
+            ],
+            [
+                "Tumis Pakcoy Bawang Putih",
+                "Nila",
+                "40",
+                "38.4",
+                "8.0299999999999994",
+                "0.68",
+                "0",
+                "0",
+                "2",
+                "Ikan Nila",
+                "150",
+                "kg",
+                "UKURAN I KG 3 EKOR POTONG 4"
+            ],
+            [
+                "Buah Pisang",
+                "Tempe ",
+                "12.5",
+                "25.13",
+                "2.6",
+                "1.1000000000000001",
+                "1.69",
+                "0.17",
+                "3",
+                "Garam Kasar",
+                "1",
+                "PAK"
+            ],
+            [
+                " Pakcoy ",
+                "50",
+                "12.5",
+                "0.5",
+                "0",
+                "2.5",
+                "0",
+                "4",
+                "Jeruk Nipis",
+                "5",
+                "kg"
+            ],
+            [
+                "Pisang",
+                "50",
+                "54",
+                "0.5",
+                "0.4",
+                "12.15",
+                "0.95",
+                "5",
+                "Minyak",
+                "30",
+                "kg",
+                ""
+            ],
+            [
+                "Minyak",
+                "5",
+                "44.2",
+                "0",
+                "5",
+                "0",
+                "0",
+                "6",
+                "bawang merah",
+                "4",
+                "kg"
+            ],
+            [
+                "Total",
+                "",
+                "354.23",
+                "14.63",
+                "7.48",
+                "56.14",
+                "1.1200000000000001",
+                "7",
+                "bawang putih",
+                "2",
+                "kg",
+                ""
+            ],
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "8",
+                "cabe rawit hijau",
+                "0.5",
+                "kg",
+                ""
+            ],
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "9",
+                "cabe rawit merah",
+                "0.5",
+                "kg",
+                ""
+            ],
+            [
+                "10",
+                "cabe merah",
+                "6",
+                "kg"
+            ],
+            [
+                "Porsi Besar (Sd Kelas 4-6, SMP,SMA)",
+                "11",
+                "jahe",
+                "0.5",
+                "kg"
+            ],
+            [
+                "Bahan Makanan",
+                "Berat (gr)",
+                "Energi (kkal)",
+                "Protein (gr)",
+                "Lemak (gr)",
+                "Karbohidrat (gr)",
+                "Serat",
+                "12",
+                "kemiri",
+                "",
+                "kg",
+                "Masi Ada"
+            ],
+            [
+                "Nasi",
+                "200",
+                "360",
+                "6",
+                "0.6",
+                "79.599999999999994",
+                "0",
+                "13",
+                "Tomat",
+                "25",
+                "kg"
+            ],
+            [
+                "Nila",
+                "60",
+                "57.6",
+                "12.05",
+                "1.02",
+                "0",
+                "0",
+                "14",
+                "Kincung\/Kecombrang",
+                "10",
+                "kg"
+            ],
+            [
+                "Tempe ",
+                "25",
+                "50.25",
+                "5.2",
+                "2.2000000000000002",
+                "3.38",
+                "0.35",
+                "15",
+                "andaliman",
+                "1",
+                "kg"
+            ],
+            [
+                " Pakcoy ",
+                "50",
+                "12.5",
+                "0.5",
+                "0",
+                "2.5",
+                "0",
+                "16",
+                "garam halus",
+                "2",
+                "bungkus"
+            ],
+            [
+                " Pisang",
+                "50",
+                "54",
+                "0.5",
+                "0.4",
+                "12.15",
+                "0.95",
+                "17",
+                "gula pasir",
+                "1",
+                "kg"
+            ],
+            [
+                "Minyak",
+                "7.5",
+                "66.3",
+                "0",
+                "7.5",
+                "0",
+                "0",
+                "",
+                "BAHAN TEMPE CRISPY ",
+                "",
+                ""
+            ],
+            [
+                "Total",
+                "",
+                "600.65",
+                "24.25",
+                "11.72",
+                "97.63",
+                "1.3",
+                "18",
+                "Tempe",
+                "217",
+                "papan"
+            ],
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "19",
+                "Tepung Terigu",
+                "3",
+                "kg"
+            ],
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "20",
+                "Kunyit Bubuk",
+                "1",
+                "Renceng",
+                "12 sachet"
+            ],
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "21",
+                "Ketumbar bubuk",
+                "",
+                "Renceng",
+                "12 sachet"
+            ],
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "22",
+                "Minyak",
+                "10",
+                "kg"
+            ],
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "BAHAN TUMIS PAKCOY BAWANG PUTIH",
+                "",
+                ""
+            ],
+            [
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "23",
+                "Pakcoy",
+                "125",
+                "kg"
+            ],
+            [
+                "24",
+                "Bawang Putih",
+                "2",
+                "kg"
+            ],
+            [
+                "25",
+                "Saus Tiram",
+                "2",
+                "botol",
+                "ukuran 133 mill"
+            ],
+            [
+                "26",
+                "garam halus",
+                "3",
+                "bungkus"
+            ],
+            [
+                "27",
+                "gula pasir",
+                "",
+                "kg",
+                "Masi Ada"
+            ],
+            [
+                "28",
+                "lada",
+                "",
+                "Renceng",
+                "Masi Ada"
+            ],
+            [
+                "29",
+                "tepung Maizena",
+                "3",
+                "kg"
+            ],
+            [
+                "30",
+                "Minyak",
+                "5",
+                "kg"
+            ],
+            [
+                "",
+                "BUAH",
+                "",
+                ""
+            ],
+            [
+                "31",
+                "Pisang",
+                "108",
+                "kg"
+            ]
+        ]
+    }
+]
