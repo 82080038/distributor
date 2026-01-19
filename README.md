@@ -46,7 +46,7 @@ start.bat
 ### **Method 2: Manual Docker Setup**
 ```bash
 # Clone repository
-git clone <repository-url>
+git clone https://github.com/82080038/distributor.git
 cd distribusi
 
 # Start all containers
@@ -349,7 +349,7 @@ git push origin feature/new-module
 
 ```bash
 # 1. Clone & CD
-git clone <repo-url>
+git clone https://github.com/82080038/distributor.git
 cd distribusi
 
 # 2. One-Click Startup
