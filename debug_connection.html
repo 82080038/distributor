@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Connection Error</title>
+</head>
+<body>
+    <h1>Debug Connection Error</h1>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message) {
+            console.log(message);
+            output.innerHTML += '<p>' + message + '</p>';
+        }
+        
+        log('=== Debug Connection Error ===');
+        
+        // Check browser info
+        log('Browser: ' + navigator.userAgent);
+        log('Platform: ' + navigator.platform);
+        
+        // Check for service workers
+        if ('serviceWorker' in navigator) {
+            log('Service Worker: Supported');
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                log('Service Workers registered: ' + registrations.length);
+                registrations.forEach(function(registration) {
+                    log('  - ' + registration.scope);
+                });
+            });
+        } else {
+            log('Service Worker: Not supported');
+        }
+        
+        // Check for web workers
+        log('Web Worker: ' + (typeof Worker !== 'undefined' ? 'Supported' : 'Not supported'));
+        
+        // Check for message channels
+        log('MessageChannel: ' + (typeof MessageChannel !== 'undefined' ? 'Supported' : 'Not supported'));
+        log('BroadcastChannel: ' + (typeof BroadcastChannel !== 'undefined' ? 'Supported' : 'Not supported'));
+        
+        // Check storage
+        try {
+            localStorage.setItem('test', 'test');
+            localStorage.removeItem('test');
+            log('LocalStorage: Working');
+        } catch (e) {
+            log('LocalStorage: Error - ' + e.message);
+        }
+        
+        try {
+            sessionStorage.setItem('test', 'test');
+            sessionStorage.removeItem('test');
+            log('SessionStorage: Working');
+        } catch (e) {
+            log('SessionStorage: Error - ' + e.message);
+        }
+        
+        // Check for extensions (indirectly)
+        log('Chrome Extension API: ' + (typeof chrome !== 'undefined' ? 'Available' : 'Not available'));
+        
+        // Try to create a simple worker to test
+        try {
+            const blob = new Blob(['self.postMessage("test");'], {type: 'application/javascript'});
+            const worker = new Worker(URL.createObjectURL(blob));
+            worker.onmessage = function(e) {
+                log('Web Worker Test: Success - ' + e.data);
+                worker.terminate();
+            };
+            worker.onerror = function(e) {
+                log('Web Worker Test: Error - ' + e.message);
+            };
+            worker.postMessage('test');
+        } catch (e) {
+            log('Web Worker Test: Failed - ' + e.message);
+        }
+        
+        // Check for any console errors
+        window.addEventListener('error', function(e) {
+            log('Window Error: ' + e.message + ' at ' + e.filename + ':' + e.lineno);
+        });
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            log('Unhandled Rejection: ' + e.reason);
+        });
+        
+        log('=== End Debug ===');
+    </script>
+</body>
+</html>
