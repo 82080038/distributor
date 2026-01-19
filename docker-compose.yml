@@ -20,12 +20,12 @@ services:
       - distributor_network
     restart: unless-stopped
 
-  # Database MariaDB with dynamic port detection
+  # Database MariaDB with cross-platform port support
   mysql:
     image: mariadb:10.6
     container_name: distributor_mysql
     ports:
-      - "3307:3306"  # Default, can be changed via port_detector.php
+      - "3307:3306"  # Use 3307 on host to avoid conflicts with native MySQL
     environment:
       MARIADB_ROOT_PASSWORD: ""
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"

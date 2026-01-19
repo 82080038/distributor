@@ -1,0 +1,43 @@
+{
+    "name": "distributor/distributor-management-system",
+    "description": "Distributor Management System - Web-based application for managing distributor business operations",
+    "version": "1.0.0",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Developer",
+            "email": "developer@example.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "ext-mysqli": "*",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-gd": "*",
+        "ext-zip": "*",
+        "ext-mbstring": "*",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Distributor\\": "src/"
+        }
+    },
+    "scripts": {
+        "start": "docker-compose up -d",
+        "stop": "docker-compose down",
+        "restart": "docker-compose restart",
+        "logs": "docker-compose logs -f",
+        "build": "docker-compose build",
+        "test": "phpunit"
+    }
+}

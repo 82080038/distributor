@@ -32,24 +32,36 @@ Aplikasi ini dikembangkan dengan **Docker containerization** untuk memastikan ko
 - **Database Ready**: Otomatis import dari SQL files
 - **Isolated Development**: Tidak mengganggu sistem host
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Cross-Platform)
 
-### **Prerequisites:**
-1. Install Docker Desktop (Windows/Mac) atau Docker Engine (Linux)
-2. Git clone repository ini
+### **Method 1: One-Click Startup (Recommended)**
+```bash
+# Linux/macOS
+./start.sh
 
-### **Run Application:**
+# Windows
+start.bat
+```
+
+### **Method 2: Manual Docker Setup**
 ```bash
 # Clone repository
 git clone <repository-url>
 cd distribusi
 
-# Start semua containers
-docker-compose up -d
+# Start all containers
+docker-compose up -d --build
 
-# Akses aplikasi
+# Access application
 # Web: http://localhost:8080
 # Database: http://localhost:8081 (PhpMyAdmin)
+```
+
+### **Method 3: Native Setup (Advanced)**
+```bash
+# Requirements: PHP 7.4+, MySQL/MariaDB, Apache
+# Import database: mysql -u root -p distributor < db/distribusi.sql
+# Access: http://localhost/distribusi
 ```
 
 ## 🏗️ Architecture
@@ -214,6 +226,19 @@ docker exec web php -r "require_once 'config.php'; echo 'Connection: ' . (\$conn
 - **Linux**: http://localhost/distribusi
 - **Database**: localhost:3306 (root/empty password)
 
+## 🔧 System Requirements
+
+### **Docker (Recommended):**
+- Docker Desktop (Windows/Mac) atau Docker Engine (Linux)
+- 4GB RAM minimum
+- 2GB disk space
+
+### **Native Setup:**
+- PHP 7.4+ dengan ekstensi: mysqli, gd, zip, mbstring
+- MySQL 5.7+ atau MariaDB 10.3+
+- Apache 2.4+ dengan mod_rewrite
+- 2GB RAM minimum
+
 ## 📱 Features & Modules
 
 ### **Core Modules:**
@@ -327,8 +352,12 @@ git push origin feature/new-module
 git clone <repo-url>
 cd distribusi
 
-# 2. Start Docker
-docker-compose up -d
+# 2. One-Click Startup
+# Linux/macOS:
+./start.sh
+
+# Windows:
+start.bat
 
 # 3. Wait 1-2 minutes
 # Database otomatis di-import
@@ -340,4 +369,25 @@ docker-compose up -d
 # 5. Selesai! Ready untuk development
 ```
 
-**🎉 Aplikasi siap digunakan di Windows, Linux, atau OS apapun dengan Docker!**
+## 📁 Project Structure
+
+```
+distribusi/
+├── 🚀 start.sh                # Linux/macOS startup script
+├── 🚀 start.bat               # Windows startup script
+├── 🐳 docker-compose.yml      # Container orchestration
+├── 🐳 Dockerfile               # Web server build
+├── ⚙️ config.php              # Auto-detect config
+├── 📊 composer.json           # PHP dependencies
+├── 🚫 .gitignore              # Git ignore file
+├── 📊 db/                     # Database schemas
+│   ├── distribusi.sql          # Main database
+│   └── distributor.sql        # Alternative schema
+├── 🗃️ mysql-init/              # Database init scripts
+├── 📝 catatan/                # Notes & parsers
+├── 🌐 *.php                   # Application files
+├── 📱 app.js                  # Frontend JavaScript
+└── 📚 *.md                    # Documentation
+```
+
+**🎉 Aplikasi siap digunakan di Windows, Linux, macOS, atau OS apapun dengan Docker!**

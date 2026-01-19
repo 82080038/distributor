@@ -27,18 +27,17 @@ function find_available_mysql_port($default_port = 3307) {
 
 // Docker vs Native vs Windows database configuration
 if ($is_docker) {
-    // Docker environment - find available port
-    $available_port = find_available_mysql_port(3307);
+    // Docker environment - use fixed port 3307
     define('DB_HOST', 'mysql');
     define('DB_USER', 'distributor_user');
     define('DB_PASS', 'distributor_pass');
     define('DB_NAME', 'distributor');
     define('DB_NAME_ALAMAT', 'alamat_db');
     define('DB_SOCKET', '');
-    define('DB_PORT', $available_port);
+    define('DB_PORT', 3306); // Internal Docker port
     
-    // Log the detected port for debugging
-    error_log("Docker: Using MySQL port " . $available_port);
+    // Log the detected configuration for debugging
+    error_log("Docker: Using MySQL container 'mysql' on internal port 3306");
     
 } elseif (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
     // Windows XAMPP configuration
@@ -83,8 +82,13 @@ if ($is_docker) {
 
 // Create database connections with TCP support for Docker
 if ($is_docker) {
+    // Direct TCP connection for Docker
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
     $conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, DB_PORT);
+    
+    // Log connection attempt for debugging
+    error_log("Docker: Attempting MySQL connection to " . DB_HOST . ":" . DB_PORT);
+    
 } else {
     $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, null, DB_SOCKET);
     $conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, null, DB_SOCKET);

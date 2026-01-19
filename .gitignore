@@ -1,0 +1,64 @@
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# Docker
+.dockerignore
+
+# Logs
+logs/
+*.log
+error.log
+access.log
+other_vhosts_access.log
+
+# Database
+*.sql.bak
+*.sql.backup
+backup_*.sql
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# PHP
+vendor/
+composer.lock
+.php_cs.cache
+
+# Apache
+.cache/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Node.js (if using)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+build/
+dist/
+
+# Configuration overrides
+config.local.php
+config.production.php
+
+# User uploads
+uploads/
+files/
