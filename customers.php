@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
 require_login();
 
 $ajaxMode = isset($_GET['ajax']) ? $_GET['ajax'] : '';
@@ -212,4 +212,4 @@ if (!empty($params)) {
 $page_title = 'Pembeli';
 $content_view = 'customers_view.php';
 
-include __DIR__ . '/template.php';
+include __DIR__ . DIRECTORY_SEPARATOR . 'template.php';

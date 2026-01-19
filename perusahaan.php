@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
 require_login();
 require_role(['owner']);
 
@@ -59,5 +59,5 @@ if ($res_detail && ($row_detail = $res_detail->fetch_assoc())) {
 $page_title = 'Data Perusahaan';
 $content_view = 'perusahaan_view.php';
 
-include __DIR__ . '/template.php';
+include __DIR__ . DIRECTORY_SEPARATOR . 'template.php';
 

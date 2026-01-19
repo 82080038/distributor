@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
 require_login();
 
 function log_purchase_audit($conn, $purchase_id, $action, $total_before, $total_after, $user_id)
@@ -698,4 +698,4 @@ if ($resPurchases) {
 $page_title = 'Pembelian';
 $content_view = 'purchases_view.php';
 
-include __DIR__ . '/template.php';
+include __DIR__ . DIRECTORY_SEPARATOR . 'template.php';

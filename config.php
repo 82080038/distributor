@@ -1,21 +1,72 @@
 <?php
 session_start();
 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'distributor');
-define('DB_NAME_ALAMAT', 'alamat_db');
+// Check if running in Docker environment
+$is_docker = file_exists('.dockerenv') || (getenv('DOCKER_ENV') === 'true');
 
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+// Docker vs Native vs Windows database configuration
+if ($is_docker) {
+    // Docker environment
+    define('DB_HOST', 'mysql');
+    define('DB_USER', 'distributor_user');
+    define('DB_PASS', 'distributor_pass');
+    define('DB_NAME', 'distributor');
+    define('DB_NAME_ALAMAT', 'alamat_db');
+    define('DB_SOCKET', '');
+    define('DB_PORT', 3307);
+} elseif (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+    // Windows XAMPP configuration
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'root');
+    define('DB_PASS', ''); // XAMPP default: empty password
+    define('DB_NAME', 'distributor');
+    define('DB_NAME_ALAMAT', 'alamat_db');
+    define('DB_SOCKET', ''); // Windows uses TCP/IP
+    define('DB_PORT', 3306); // XAMPP default port
+} else {
+    // Unix/Linux configuration
+    define('DB_HOST', 'localhost');
+    define('DB_USER', 'root');
+    define('DB_PASS', ''); // Adjust based on your setup
+    define('DB_NAME', 'distributor');
+    define('DB_NAME_ALAMAT', 'alamat_db');
+    
+    // Try common socket locations
+    $common_sockets = [
+        '/var/run/mysqld/mysqld.sock',  // Debian/Ubuntu
+        '/var/lib/mysql/mysql.sock',     // CentOS/RHEL/Fedora
+        '/tmp/mysql.sock',               // Alternative
+        '/run/mysqld/mysqld.sock'       // Modern systemd
+    ];
+    
+    $socket_found = '';
+    foreach ($common_sockets as $socket) {
+        if (file_exists($socket)) {
+            $socket_found = $socket;
+            break;
+        }
+    }
+    
+    define('DB_SOCKET', $socket_found);
+    define('DB_PORT', 3306);
+}
+
+// Create database connections with TCP support for Docker
+if ($is_docker) {
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
+    $conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, DB_PORT);
+} else {
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, null, DB_SOCKET);
+    $conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, null, DB_SOCKET);
+}
+
 if ($conn->connect_error) {
-    die('Database connection failed');
+    die('Database connection failed: ' . $conn->connect_error);
 }
 $conn->set_charset('utf8mb4');
 
-$conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT);
 if ($conn_alamat->connect_error) {
-    die('Alamat database connection failed');
+    die('Alamat database connection failed: ' . $conn_alamat->connect_error);
 }
 $conn_alamat->set_charset('utf8mb4');
 

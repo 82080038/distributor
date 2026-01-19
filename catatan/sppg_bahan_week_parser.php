@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../excel_reader.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'excel_reader.php';
 
 function sppg_invoice_manual_map()
 {

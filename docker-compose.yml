@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # Web Server dengan PHP
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: distributor_web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./logs:/var/log/apache2
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - distributor_network
+    restart: unless-stopped
+
+  # Database MariaDB (more reliable than MySQL)
+  mysql:
+    image: mariadb:10.6
+    container_name: distributor_mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ""
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+      MARIADB_DATABASE: distributor
+      MARIADB_USER: distributor_user
+      MARIADB_PASSWORD: distributor_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db:/docker-entrypoint-initdb.d:ro
+    networks:
+      - distributor_network
+    restart: unless-stopped
+
+  # PhpMyAdmin (Optional - untuk database management)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: distributor_phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: ""
+      MYSQL_ROOT_PASSWORD: ""
+    depends_on:
+      - mysql
+    networks:
+      - distributor_network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  distributor_network:
+    driver: bridge

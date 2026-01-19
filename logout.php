@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 
 $_SESSION = [];
 if (ini_get('session.use_cookies')) {

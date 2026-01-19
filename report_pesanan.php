@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
 require_login();
 
 $user = current_user();
@@ -238,4 +238,4 @@ if ($export === 'orders_csv') {
 $page_title = 'Laporan Pesanan';
 $content_view = 'report_pesanan_view.php';
 
-include __DIR__ . '/template.php';
+include __DIR__ . DIRECTORY_SEPARATOR . 'template.php';

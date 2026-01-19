@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../excel_reader.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'excel_reader.php';
 
-$file = __DIR__ . '/excel/SIKLUS MENU 12 HARI, NILAI GIZI, BAHAN.xlsx';
+$file = __DIR__ . DIRECTORY_SEPARATOR . 'excel' . DIRECTORY_SEPARATOR . 'SIKLUS MENU 12 HARI, NILAI GIZI, BAHAN.xlsx';
 
 if (!is_file($file)) {
     echo 'File tidak ditemukan: ' . $file . PHP_EOL;

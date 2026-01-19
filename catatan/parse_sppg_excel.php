@@ -1,22 +1,22 @@
 <?php
 
-require_once __DIR__ . '/../excel_reader.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'excel_reader.php';
 
-$dir = __DIR__ . '/excel';
-$defaultFile = $dir . '/SIKLUS MENU 12 HARI, NILAI GIZI, BAHAN.xlsx';
+$dir = __DIR__ . DIRECTORY_SEPARATOR . 'excel';
+$defaultFile = $dir . DIRECTORY_SEPARATOR . 'SIKLUS MENU 12 HARI, NILAI GIZI, BAHAN.xlsx';
 $file = $defaultFile;
 
 if (php_sapi_name() === 'cli') {
     global $argv;
     if (isset($argv[1]) && $argv[1] !== '') {
-        $candidate = $dir . '/' . $argv[1];
+        $candidate = $dir . DIRECTORY_SEPARATOR . $argv[1];
         if (is_file($candidate)) {
             $file = $candidate;
         }
     }
 } elseif (isset($_GET['file'])) {
     $candidate = basename($_GET['file']);
-    $candidatePath = $dir . '/' . $candidate;
+    $candidatePath = $dir . DIRECTORY_SEPARATOR . $candidate;
     if (is_file($candidatePath)) {
         $file = $candidatePath;
     }
@@ -55,7 +55,7 @@ if (php_sapi_name() === 'cli') {
     }
     $base = basename($file);
     $safeBase = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $base);
-    $outFile = __DIR__ . '/preview_' . $safeBase . '.json';
+    $outFile = __DIR__ . DIRECTORY_SEPARATOR . 'preview_' . $safeBase . '.json';
     file_put_contents($outFile, json_encode($allSheets, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     echo 'Preview JSON: ' . $outFile . PHP_EOL;
     exit(0);

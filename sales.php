@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
 require_login();
 
 $error = '';
@@ -274,4 +274,4 @@ if ($selected_sale_id > 0 && $branch_id) {
 $page_title = 'Penjualan';
 $content_view = 'sales_view.php';
 
-include __DIR__ . '/template.php';
+include __DIR__ . DIRECTORY_SEPARATOR . 'template.php';

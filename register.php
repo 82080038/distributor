@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 
 if (isset($_GET['alamat_action'])) {
     header('Content-Type: application/json; charset=utf-8');
@@ -89,7 +89,7 @@ if ($stmt_check) {
 }
 
 if ($users_exist) {
-    require_once __DIR__ . '/auth.php';
+    require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
     require_login();
     require_role(['owner']);
 }

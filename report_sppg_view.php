@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
 
 $defaultA = 'SPPG_JAN2026';
 $defaultB = 'SPPG_JAN2026_MINGGU1';

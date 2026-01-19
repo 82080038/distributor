@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
 require_login();
 
 $user = current_user();
@@ -173,7 +173,7 @@ $is_transaksi_active = in_array($current_page, ['purchases.php', 'sales.php'], t
             <div class="alert alert-success mb-3"><?php echo $success; ?></div>
         <?php endif; ?>
         <?php if (isset($content_view)): ?>
-            <?php include __DIR__ . '/' . $content_view; ?>
+            <?php include __DIR__ . DIRECTORY_SEPARATOR . $content_view; ?>
         <?php endif; ?>
     </div>
     <script>

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
 require_login();
 
 function sppg_to_title_case($text)
@@ -533,4 +533,4 @@ if ($resCount) {
 $page_title = 'Produk';
 $content_view = 'products_view.php';
 
-include __DIR__ . '/template.php';
+include __DIR__ . DIRECTORY_SEPARATOR . 'template.php';

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
 require_login();
 
 $error = '';
@@ -198,4 +198,4 @@ if ($user && isset($user['id'])) {
 $page_title = 'Profil User';
 $content_view = 'profile_view.php';
 
-include __DIR__ . '/template.php';
+include __DIR__ . DIRECTORY_SEPARATOR . 'template.php';

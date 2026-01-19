@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'config.php';
 
 $sqlProducts = "SELECT id, code, name, unit, is_active FROM products";
 $resProducts = $conn->query($sqlProducts);
