@@ -50,10 +50,32 @@ $is_transaksi_active = in_array($current_page, ['purchases.php', 'sales.php'], t
     .form-control,
     .form-select,
     .table,
-    .dropdown-menu,
     .badge,
     .alert {
         transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    
+    .dropdown-menu {
+        transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        z-index: 1000;
+        position: absolute;
+    }
+    
+    /* Ensure dropdown works in all modes */
+    .dropdown {
+        position: relative;
+    }
+    
+    .dropdown-menu.show {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .dropdown-menu:not(.show) {
+        display: none;
+        opacity: 0;
+        visibility: hidden;
     }
     html[data-bs-theme="dark"] {
         --bs-body-bg: #020617;
@@ -93,10 +115,22 @@ $is_transaksi_active = in_array($current_page, ['purchases.php', 'sales.php'], t
 </head>
 <body class="bg-body">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    // Fallback jika jQuery gagal dimuat
+    if (typeof jQuery === 'undefined') {
+        document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"><\/script>');
+    }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
     <script src="app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Fallback jika Bootstrap gagal dimuat
+    if (typeof bootstrap === 'undefined') {
+        document.write('<script src="https://unpkg.com/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"><\/script>');
+    }
+    </script>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
@@ -177,41 +211,61 @@ $is_transaksi_active = in_array($current_page, ['purchases.php', 'sales.php'], t
         <?php endif; ?>
     </div>
     <script>
-    $(function () {
-        function setupManualDropdown(toggleId) {
-            var $toggle = $('#' + toggleId);
-            if (!$toggle.length) {
-                return;
-            }
-            var $parent = $toggle.closest('.dropdown');
-            if (!$parent.length) {
-                return;
-            }
-            var $menu = $parent.find('.dropdown-menu').first();
-            if (!$menu.length) {
-                return;
-            }
-            $toggle.on('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                var isShown = $menu.hasClass('show');
-                var $navbar = $('nav');
-                if ($navbar.length) {
-                    $navbar.find('.dropdown-menu.show').removeClass('show');
-                }
-                if (!isShown) {
-                    $menu.addClass('show');
+    // Handle Chrome extension communication errors gracefully
+    window.addEventListener('error', function(e) {
+        // Suppress Chrome extension communication errors
+        if (e.message && e.message.includes('Could not establish connection. Receiving end does not exist')) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    }, true);
+    
+    // Handle unhandled promise rejections from Chrome extensions
+    window.addEventListener('unhandledrejection', function(e) {
+        // Suppress Chrome extension communication errors
+        if (e.reason && e.reason.message && e.reason.message.includes('Could not establish connection. Receiving end does not exist')) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+        // Also check if the reason itself contains the error message
+        if (e.reason && typeof e.reason === 'string' && e.reason.includes('Could not establish connection. Receiving end does not exist')) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    }, true);
+    
+    // Override console.error to suppress Chrome extension errors
+    const originalConsoleError = console.error;
+    console.error = function(...args) {
+        const message = args.join(' ');
+        if (message.includes('Could not establish connection. Receiving end does not exist')) {
+            return; // Suppress this specific error
+        }
+        originalConsoleError.apply(console, args);
+    };
+    
+    // Close dropdowns when clicking outside
+    $(document).on('click', function (e) {
+        var $navbar = $('nav');
+        if ($navbar.length) {
+            var $dropdowns = $navbar.find('.dropdown-menu.show');
+            $dropdowns.each(function() {
+                var $dropdown = $(this);
+                var $dropdownToggle = $dropdown.siblings('[data-bs-toggle="dropdown"]');
+                if ($dropdownToggle.length && !$dropdownToggle.is(e.target) && !$dropdown.has(e.target).length) {
+                    // Close Bootstrap dropdown properly
+                    var dropdown = new bootstrap.Dropdown($dropdownToggle[0]);
+                    dropdown.hide();
                 }
             });
         }
-        setupManualDropdown('navbarDropdownTransaksi');
-        setupManualDropdown('navbarDropdownUser');
-        $(document).on('click', function () {
-            var $navbar = $('nav');
-            if ($navbar.length) {
-                $navbar.find('.dropdown-menu.show').removeClass('show');
-            }
-        });
+    });
+    
+    // Show alerts as toast notifications
+    $(function() {
         if (typeof AppUtil !== 'undefined' && typeof AppUtil.showToast === 'function') {
             $('.alert.alert-danger, .alert.alert-success').each(function () {
                 var $el = $(this);

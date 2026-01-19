@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'alamat_manager.php';
+
+// Setup AJAX endpoints untuk alamat
+setup_alamat_ajax_endpoints();
 
 if (isset($_GET['alamat_action'])) {
     header('Content-Type: application/json; charset=utf-8');
@@ -102,22 +106,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = clean($_POST['name'] ?? '');
     $role_name = clean($_POST['role'] ?? 'owner');
     $phone = clean($_POST['phone'] ?? '');
-    $alamat = clean($_POST['alamat'] ?? '');
-    $province_id = (int)($_POST['province_id'] ?? 0);
-    $regency_id = (int)($_POST['regency_id'] ?? 0);
-    $district_id = (int)($_POST['district_id'] ?? 0);
-    $village_id = (int)($_POST['village_id'] ?? 0);
-    $postal_code = clean($_POST['postal_code'] ?? '');
     $nama_perusahaan = clean($_POST['nama_perusahaan'] ?? '');
     $is_first_user = !$users_exist;
     if ($is_first_user) {
         $role_name = 'owner';
     }
 
+    require_once __DIR__ . DIRECTORY_SEPARATOR . 'alamat_manager.php';
+    $address_validation = validate_alamat_data('', true);
+    
     if ($is_first_user && $nama_perusahaan === '') {
         $error = 'Untuk pendaftaran pertama, Nama Perusahaan wajib diisi.';
-    } elseif ($username === '' || $email === '' || $password === '' || $confirm_password === '' || $name === '' || $phone === '' || $alamat === '') {
-        $error = 'Form belum lengkap. Silakan isi semua kolom wajib, termasuk Nomor HP dan Alamat Jalan.';
+    } elseif ($username === '' || $email === '' || $password === '' || $confirm_password === '' || $name === '' || $phone === '') {
+        $error = 'Form belum lengkap. Silakan isi semua kolom wajib, termasuk Nomor HP.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Format email tidak valid. Contoh: nama@domain.com.';
     } elseif (!preg_match('/^[0-9+\s-]{8,20}$/', $phone)) {
@@ -126,11 +127,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Password terlalu pendek. Minimal 8 karakter.';
     } elseif ($password !== $confirm_password) {
         $error = 'Konfirmasi password tidak sama dengan password.';
-    } elseif ($province_id === 0 || $regency_id === 0 || $district_id === 0) {
-        $error = 'Alamat wilayah belum lengkap. Pilih Provinsi, Kabupaten/Kota, dan Kecamatan.';
-    } elseif ($postal_code === '') {
-        $error = 'Kode pos belum terisi. Pilih Kelurahan/Desa agar kode pos terisi otomatis.';
+    } elseif (!$address_validation['valid']) {
+        $error = 'Alamat belum lengkap: ' . implode(', ', $address_validation['errors']);
     } else {
+        // Extract validated address data
+        $province_id = $address_validation['data']['province_id'];
+        $regency_id = $address_validation['data']['regency_id'];
+        $district_id = $address_validation['data']['district_id'];
+        $village_id = $address_validation['data']['village_id'];
+        $alamat = $address_validation['data']['street_address'];
+        $postal_code = $address_validation['data']['postal_code'];
+        $tipe_alamat = $address_validation['data']['tipe_alamat'];
         $check_user_sql = "SELECT id_user FROM user WHERE username = ? OR email = ? LIMIT 1";
         $stmt = $conn->prepare($check_user_sql);
         if ($stmt) {
@@ -188,12 +195,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
 
-                    $sql_orang = "INSERT INTO orang (perusahaan_id, nama_lengkap, alamat, kontak, province_id, regency_id, district_id, village_id, postal_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    $sql_orang = "INSERT INTO orang (perusahaan_id, nama_lengkap, alamat, kontak, province_id, regency_id, district_id, village_id, postal_code, tipe_alamat) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     $stmt_orang = $conn->prepare($sql_orang);
                     if (!$stmt_orang) {
                         throw new Exception('Gagal menyiapkan query orang');
                     }
-                    $stmt_orang->bind_param('isssiiiis', $perusahaan_id, $name, $alamat, $phone, $province_id, $regency_id, $district_id, $village_id, $postal_code);
+                    $stmt_orang->bind_param('isssiiiiss', $perusahaan_id, $name, $alamat, $phone, $province_id, $regency_id, $district_id, $village_id, $postal_code, $tipe_alamat);
                     if (!$stmt_orang->execute()) {
                         throw new Exception('Gagal menyimpan data orang');
                     }
@@ -324,47 +331,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <input type="text" name="nama_perusahaan" class="form-control" required>
                             </div>
                             <?php endif; ?>
-                            <div class="mb-3">
-                                <label class="form-label">Provinsi</label>
-                                <select name="province_id" id="province_id" class="form-select" required>
-                                    <option value="">Pilih Provinsi</option>
-                                    <?php
-                                    $prov_sql = "SELECT id, name FROM provinces ORDER BY name";
-                                    $prov_res = $conn_alamat->query($prov_sql);
-                                    if ($prov_res) {
-                                        while ($p = $prov_res->fetch_assoc()) {
-                                            echo '<option value="' . (int)$p['id'] . '">' . htmlspecialchars($p['name'], ENT_QUOTES, 'UTF-8') . '</option>';
-                                        }
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Kabupaten / Kota</label>
-                                <select name="regency_id" id="regency_id" class="form-select" required>
-                                    <option value="">Pilih Provinsi terlebih dahulu</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Kecamatan</label>
-                                <select name="district_id" id="district_id" class="form-select" required>
-                                    <option value="">Pilih Kabupaten/Kota terlebih dahulu</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Kelurahan / Desa</label>
-                                <select name="village_id" id="village_id" class="form-select">
-                                    <option value="">Pilih Kecamatan terlebih dahulu</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Alamat Jalan</label>
-                                <input type="text" name="alamat" class="form-control" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Kode Pos</label>
-                                <input type="text" name="postal_code" id="postal_code" class="form-control" readonly required>
-                            </div>
+                            <?php
+                            require_once __DIR__ . DIRECTORY_SEPARATOR . 'alamat_manager.php';
+                            $address_values = [
+                                'province_id' => $province_id,
+                                'regency_id' => $regency_id,
+                                'district_id' => $district_id,
+                                'village_id' => $village_id,
+                                'street_address' => $alamat,
+                                'postal_code' => $postal_code,
+                                'tipe_alamat' => $tipe_alamat ?? ''
+                            ];
+                            render_alamat_form('', $address_values, true, true, true);
+                            ?>
                             <div class="mb-3">
                                 <label class="form-label">Username</label>
                                 <input type="text" name="username" class="form-control" required>
@@ -404,73 +383,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    // Fallback jika jQuery gagal dimuat
+    if (typeof jQuery === 'undefined') {
+        document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"><\/script>');
+    }
+    </script>
     <script src="app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-    $(function () {
-        var $form = $('#registerForm');
-        var $provinceSelect = $('#province_id');
-        var $regencySelect = $('#regency_id');
-        var $districtSelect = $('#district_id');
-        var $villageSelect = $('#village_id');
-        var $postalInput = $('#postal_code');
-
-        $provinceSelect.on('change', function () {
-            var provId = $(this).val();
-            AppUtil.resetSelect($regencySelect, 'Pilih Kabupaten/Kota');
-            AppUtil.resetSelect($districtSelect, 'Pilih Kecamatan');
-            AppUtil.resetSelect($villageSelect, 'Pilih Kelurahan/Desa');
-            $postalInput.val('');
-            if (provId) {
-                AppUtil.loadOptions({
-                    url: 'register.php?alamat_action=kabupaten&province_id=' + encodeURIComponent(provId),
-                    $select: $regencySelect,
-                    placeholder: 'Pilih Kabupaten/Kota'
-                });
-            }
-        });
-
-        $regencySelect.on('change', function () {
-            var regId = $(this).val();
-            AppUtil.resetSelect($districtSelect, 'Pilih Kecamatan');
-            AppUtil.resetSelect($villageSelect, 'Pilih Kelurahan/Desa');
-            $postalInput.val('');
-            if (regId) {
-                AppUtil.loadOptions({
-                    url: 'register.php?alamat_action=kecamatan&regency_id=' + encodeURIComponent(regId),
-                    $select: $districtSelect,
-                    placeholder: 'Pilih Kecamatan'
-                });
-            }
-        });
-
-        $districtSelect.on('change', function () {
-            var distId = $(this).val();
-            AppUtil.resetSelect($villageSelect, 'Pilih Kelurahan/Desa');
-            $postalInput.val('');
-            if (distId) {
-                AppUtil.loadOptions({
-                    url: 'register.php?alamat_action=desa&district_id=' + encodeURIComponent(distId),
-                    $select: $villageSelect,
-                    placeholder: 'Pilih Kelurahan/Desa'
-                });
-            }
-        });
-
-        $villageSelect.on('change', function () {
-            var villId = $(this).val();
-            $postalInput.val('');
-            if (villId) {
-                $.getJSON('register.php?alamat_action=kodepos&village_id=' + encodeURIComponent(villId), function (data) {
-                    if (data.length > 0) {
-                        $postalInput.val(data[0].name);
-                    }
-                });
-            }
-        });
-
-        AppUtil.setupFocusNavigation($form);
-    });
+    // Fallback jika Bootstrap gagal dimuat
+    if (typeof bootstrap === 'undefined') {
+        document.write('<script src="https://unpkg.com/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"><\/script>');
+    }
     </script>
+    <script>
+<?php render_alamat_script(''); ?>
+</script>
 </body>
 </html>

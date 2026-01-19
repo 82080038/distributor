@@ -48,49 +48,19 @@
                     <label class="form-label mb-1"><strong>Nomor HP</strong></label>
                     <input type="tel" name="phone" class="form-control" value="<?php echo htmlspecialchars($profile['kontak'], ENT_QUOTES, 'UTF-8'); ?>" required>
                 </li>
-                <li class="list-group-item">
-                    <label class="form-label mb-1"><strong>Provinsi</strong></label>
-                    <select name="province_id" id="province_id" class="form-select" required>
-                        <option value="">Pilih Provinsi</option>
-                        <?php
-                        $prov_sql = "SELECT id, name FROM provinces ORDER BY name";
-                        $prov_res = $conn_alamat->query($prov_sql);
-                        if ($prov_res) {
-                            while ($p = $prov_res->fetch_assoc()) {
-                                $pid = (int)$p['id'];
-                                $selected = ($profile['province_id'] == $pid) ? ' selected' : '';
-                                echo '<option value="' . $pid . '"' . $selected . '>' . htmlspecialchars($p['name'], ENT_QUOTES, 'UTF-8') . '</option>';
-                            }
-                        }
-                        ?>
-                    </select>
-                </li>
-                <li class="list-group-item">
-                    <label class="form-label mb-1"><strong>Kabupaten / Kota</strong></label>
-                    <select name="regency_id" id="regency_id" class="form-select" required>
-                        <option value="">Pilih Provinsi terlebih dahulu</option>
-                    </select>
-                </li>
-                <li class="list-group-item">
-                    <label class="form-label mb-1"><strong>Kecamatan</strong></label>
-                    <select name="district_id" id="district_id" class="form-select" required>
-                        <option value="">Pilih Kabupaten/Kota terlebih dahulu</option>
-                    </select>
-                </li>
-                <li class="list-group-item">
-                    <label class="form-label mb-1"><strong>Kelurahan / Desa</strong></label>
-                    <select name="village_id" id="village_id" class="form-select">
-                        <option value="">Pilih Kecamatan terlebih dahulu</option>
-                    </select>
-                </li>
-                <li class="list-group-item">
-                    <label class="form-label mb-1"><strong>Alamat Jalan</strong></label>
-                    <input type="text" name="alamat" class="form-control" value="<?php echo htmlspecialchars($profile['alamat'], ENT_QUOTES, 'UTF-8'); ?>" required>
-                </li>
-                <li class="list-group-item">
-                    <label class="form-label mb-1"><strong>Kode Pos</strong></label>
-                    <input type="text" name="postal_code" id="postal_code" class="form-control" value="<?php echo htmlspecialchars($profile['postal_code'], ENT_QUOTES, 'UTF-8'); ?>" readonly required>
-                </li>
+                <?php
+                require_once __DIR__ . DIRECTORY_SEPARATOR . 'address_helper.php';
+                $address_values = [
+                    'province_id' => $profile['province_id'],
+                    'regency_id' => $profile['regency_id'],
+                    'district_id' => $profile['district_id'],
+                    'village_id' => $profile['village_id'],
+                    'street_address' => $profile['alamat'],
+                    'postal_code' => $profile['postal_code'],
+                    'tipe_alamat' => $profile['tipe_alamat'] ?? ''
+                ];
+                render_address_fields('', $address_values, true, true);
+                ?>
             </ul>
             <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-primary">Simpan Alamat Pribadi</button>
@@ -101,107 +71,6 @@
 </div>
 <?php if ($profile): ?>
 <script>
-$(function () {
-    var $form = $('#profileAddressForm');
-    if ($form.length === 0) {
-        return;
-    }
-    var $provinceSelect = $('#province_id');
-    var $regencySelect = $('#regency_id');
-    var $districtSelect = $('#district_id');
-    var $villageSelect = $('#village_id');
-    var $postalInput = $('#postal_code');
-
-    var currentProvinceId = <?php echo (int)$profile['province_id']; ?>;
-    var currentRegencyId = <?php echo (int)$profile['regency_id']; ?>;
-    var currentDistrictId = <?php echo (int)$profile['district_id']; ?>;
-    var currentVillageId = <?php echo (int)$profile['village_id']; ?>;
-
-    if (currentProvinceId) {
-        $provinceSelect.val(String(currentProvinceId));
-        AppUtil.loadOptions({
-            url: 'profile.php?alamat_action=kabupaten&province_id=' + encodeURIComponent(currentProvinceId),
-            $select: $regencySelect,
-            placeholder: 'Pilih Kabupaten/Kota',
-            selectedId: currentRegencyId,
-            nextLoader: function () {
-                if (currentRegencyId) {
-                    AppUtil.loadOptions({
-                        url: 'profile.php?alamat_action=kecamatan&regency_id=' + encodeURIComponent(currentRegencyId),
-                        $select: $districtSelect,
-                        placeholder: 'Pilih Kecamatan',
-                        selectedId: currentDistrictId,
-                        nextLoader: function () {
-                            if (currentDistrictId) {
-                                AppUtil.loadOptions({
-                                    url: 'profile.php?alamat_action=desa&district_id=' + encodeURIComponent(currentDistrictId),
-                                    $select: $villageSelect,
-                                    placeholder: 'Pilih Kelurahan/Desa',
-                                    selectedId: currentVillageId
-                                });
-                            }
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    $provinceSelect.on('change', function () {
-        var provId = $(this).val();
-        AppUtil.resetSelect($regencySelect, 'Pilih Kabupaten/Kota');
-        AppUtil.resetSelect($districtSelect, 'Pilih Kecamatan');
-        AppUtil.resetSelect($villageSelect, 'Pilih Kelurahan/Desa');
-        $postalInput.val('');
-        if (provId) {
-            AppUtil.loadOptions({
-                url: 'profile.php?alamat_action=kabupaten&province_id=' + encodeURIComponent(provId),
-                $select: $regencySelect,
-                placeholder: 'Pilih Kabupaten/Kota'
-            });
-        }
-    });
-
-    $regencySelect.on('change', function () {
-        var regId = $(this).val();
-        AppUtil.resetSelect($districtSelect, 'Pilih Kecamatan');
-        AppUtil.resetSelect($villageSelect, 'Pilih Kelurahan/Desa');
-        $postalInput.val('');
-        if (regId) {
-            AppUtil.loadOptions({
-                url: 'profile.php?alamat_action=kecamatan&regency_id=' + encodeURIComponent(regId),
-                $select: $districtSelect,
-                placeholder: 'Pilih Kecamatan'
-            });
-        }
-    });
-
-    $districtSelect.on('change', function () {
-        var distId = $(this).val();
-        AppUtil.resetSelect($villageSelect, 'Pilih Kelurahan/Desa');
-        $postalInput.val('');
-        if (distId) {
-            AppUtil.loadOptions({
-                url: 'profile.php?alamat_action=desa&district_id=' + encodeURIComponent(distId),
-                $select: $villageSelect,
-                placeholder: 'Pilih Kelurahan/Desa'
-            });
-        }
-    });
-
-    $villageSelect.on('change', function () {
-        var villId = $(this).val();
-        $postalInput.val('');
-        if (villId) {
-            $.getJSON('profile.php?alamat_action=kodepos&village_id=' + encodeURIComponent(villId), function (data) {
-                if (data.length > 0) {
-                    $postalInput.val(data[0].name);
-                }
-            });
-        }
-    });
-
-    AppUtil.setupFocusNavigation($form);
-});
+<?php render_address_script(''); ?>
 </script>
 <?php endif; ?>

@@ -20,6 +20,55 @@ Aplikasi Distributor Management System adalah sistem berbasis web untuk mengelol
 - **Manajemen Pembelian** - Tracking pembelian dan purchase order
 - **Laporan & Analisis** - Omzet, pesanan, SPPG, dan laporan pembelian
 - **Manajemen User** - Sistem login dengan role-based access
+- **🆕 Manajemen Alamat** - Sistem alamat terstruktur dengan autocomplete
+
+## 🌟 **FITUR TERBARU - SISTEM ALAMAT TERSTRUKTUR**
+
+### **🏠 Alamat Manager System**
+Aplikasi sekarang dilengkapi dengan sistem alamat yang seragam dan modern:
+
+#### **✅ Fitur Utama:**
+- **Form Alamat Seragam** - Layout konsisten di seluruh aplikasi
+- **Autocomplete Desa** - Pencarian real-time untuk desa/kelurahan
+- **Cascading Selects** - Propinsi → Kabupaten → Kecamatan → Desa
+- **Kode Pos Otomatis** - Terisi saat desa dipilih
+- **Tipe Alamat** - Rumah, Kantor, Gudang, Toko, Pabrik, Lainnya
+- **Validasi Lengkap** - Client dan server-side validation
+
+#### **🎨 Layout Alamat:**
+```
+1. Combo Wilayah (paling atas):
+   - Propinsi + Kabupaten/Kota
+   - Kecamatan + Kelurahan/Desa (dengan autocomplete)
+
+2. Tipe Alamat + Kode Pos:
+   - Dropdown tipe alamat dengan icon
+   - Kode pos otomatis dari database
+
+3. Alamat Jalan (paling bawah):
+   - Textarea untuk alamat lengkap
+   - Placeholder dan petunjuk yang jelas
+```
+
+#### **📁 File Alamat Manager:**
+- **`alamat_manager.php`** - File master dengan fungsi CRUD lengkap
+- **`alamat_crud.php`** - Manajemen alamat terpisah
+- **`schema_add_tipe_alamat.sql`** - Migration database
+
+#### **🔧 Cara Penggunaan:**
+```php
+// Include file alamat manager
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'alamat_manager.php';
+
+// Setup AJAX endpoints
+setup_alamat_ajax_endpoints();
+
+// Render form alamat
+render_alamat_form('', $address_values, true, true, true);
+
+// Validasi data alamat
+$validation = validate_alamat_data('', true);
+```
 
 ## 🐳 Docker-Based Development
 
@@ -118,12 +167,16 @@ distribusi/
 ├── ⚙️ config.php              # Auto-detect config
 ├── 📊 db/                     # Database schemas
 │   ├── distribusi.sql          # Main database
-│   └── distributor.sql        # Alternative schema
+│   ├── distributor.sql        # Alternative schema
+│   └── alamat_db.sql          # Alamat database
 ├── 🗃️ mysql-init/              # Database init scripts
 ├── 📝 catatan/                # Notes & parsers
 ├── 🌐 *.php                   # Application files
 ├── 📱 app.js                  # Frontend JavaScript
-└── 📚 *.md                    # Documentation
+├── 🏠 alamat_manager.php       # Alamat manager system
+├── 🏠 alamat_crud.php          # CRUD alamat
+├── 📚 *.md                    # Documentation
+└── 🚀 start.sh / start.bat     # Startup scripts
 ```
 
 ## 💻 Development Workflow
@@ -180,6 +233,12 @@ CREATE DATABASE alamat_db;
 
 -- Import schema
 mysql -u root -p distributor < db/distribusi.sql
+
+-- Migration untuk tipe_alamat
+USE distributor;
+ALTER TABLE orang 
+ADD COLUMN tipe_alamat ENUM('rumah', 'kantor', 'gudang', 'toko', 'pabrik', 'lainnya') NULL DEFAULT NULL 
+AFTER postal_code;
 ```
 
 ## 🔍 Troubleshooting
@@ -210,6 +269,13 @@ docker-compose logs web
 ```bash
 # Test koneksi database
 docker exec web php -r "require_once 'config.php'; echo 'Connection: ' . (\$conn->connect_error ? 'FAILED' : 'OK');"
+```
+
+### **JavaScript Errors:**
+```bash
+# Clear browser cache
+# Hard refresh (Ctrl+Shift+R)
+# Check console untuk error
 ```
 
 ## 🌐 Access Information
@@ -244,8 +310,8 @@ docker exec web php -r "require_once 'config.php'; echo 'Connection: ' . (\$conn
 ### **Core Modules:**
 1. **Dashboard** - Overview sistem
 2. **Products** - Manajemen produk & harga
-3. **Customers** - Data pelanggan
-4. **Suppliers** - Data supplier/pemasok
+3. **Customers** - Data pelanggan dengan alamat terstruktur
+4. **Suppliers** - Data supplier/pemasok dengan alamat terstruktur
 5. **Orders** - Manajemen pesanan
 6. **Purchases** - Manajemen pembelian
 7. **Sales** - Proses penjualan
@@ -253,12 +319,23 @@ docker exec web php -r "require_once 'config.php'; echo 'Connection: ' . (\$conn
 9. **Users** - Manajemen user & permissions
 10. **Company** - Data perusahaan
 
+### **🆕 Alamat System Features:**
+- **Form Alamat Seragam** - Layout konsisten di seluruh aplikasi
+- **Autocomplete Desa** - Pencarian real-time dengan dropdown
+- **Cascading Selects** - 4 level wilayah otomatis
+- **Tipe Alamat** - 6 tipe alamat dengan icon
+- **Kode Pos Otomatis** - Terisi dari database
+- **CRUD Operations** - Create, Read, Update, Delete alamat
+- **Entity Linking** - Hubungkan alamat ke user/customer/supplier
+- **Validation** - Client dan server-side validation
+
 ### **Advanced Features:**
 - **Excel Import/Export** - Parse file Excel untuk data SPPG
 - **Multi-Branch** - Support multiple cabang
 - **Role-Based Access** - Owner, Admin, Staff roles
 - **Real-time Updates** - AJAX-based interactions
 - **Responsive Design** - Mobile-friendly interface
+- **🆕 Error Handling** - Graceful handling untuk Chrome extension errors
 
 ## 🔒 Security Features
 
@@ -267,6 +344,7 @@ docker exec web php -r "require_once 'config.php'; echo 'Connection: ' . (\$conn
 - **SQL Injection Protection** - Prepared statements
 - **Role-Based Access** - Permission control
 - **Password Hashing** - Secure password storage
+- **🆕 Error Suppression** - Handle Chrome extension errors gracefully
 
 ## 📊 Technology Stack
 
@@ -342,6 +420,7 @@ git push origin feature/new-module
 - **Documentation**: Lihat file `DOCKER_SETUP.md`
 - **Issues**: Report via GitHub Issues
 - **Database Setup**: Lihat `DATABASE_SETUP.md`
+- **Alamat System**: Lihat `ALAMAT_MANAGER_GUIDE.md`
 
 ---
 
@@ -382,12 +461,32 @@ distribusi/
 ├── 🚫 .gitignore              # Git ignore file
 ├── 📊 db/                     # Database schemas
 │   ├── distribusi.sql          # Main database
-│   └── distributor.sql        # Alternative schema
+│   ├── distributor.sql        # Alternative schema
+│   └── alamat_db.sql          # Alamat database
 ├── 🗃️ mysql-init/              # Database init scripts
 ├── 📝 catatan/                # Notes & parsers
 ├── 🌐 *.php                   # Application files
 ├── 📱 app.js                  # Frontend JavaScript
-└── 📚 *.md                    # Documentation
+├── 🏠 alamat_manager.php       # Alamat manager system
+├── 🏠 alamat_crud.php          # CRUD alamat
+├── 📚 *.md                    # Documentation
+└── 🚀 start.sh / start.bat     # Startup scripts
 ```
+
+## 🆕 **Changelog & Updates**
+
+### **Version 1.1.0 - Alamat System Integration**
+- ✅ **Alamat Manager System** - Sistem alamat terstruktur
+- ✅ **Autocomplete Desa** - Pencarian real-time
+- ✅ **CRUD Operations** - Create, Read, Update, Delete
+- ✅ **Form Seragam** - Layout konsisten di seluruh aplikasi
+- ✅ **Error Handling** - Graceful Chrome extension error handling
+- ✅ **Database Migration** - Field tipe_alamat untuk orang table
+
+### **Version 1.0.0 - Base System**
+- ✅ **Docker Integration** - Cross-platform development
+- ✅ **Core Modules** - Products, Customers, Orders, Purchases
+- ✅ **User Management** - Role-based access control
+- ✅ **Reporting System** - Laporan dan analisis
 
 **🎉 Aplikasi siap digunakan di Windows, Linux, macOS, atau OS apapun dengan Docker!**

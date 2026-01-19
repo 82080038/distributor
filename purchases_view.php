@@ -32,11 +32,11 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-3 mb-3">
                             <label class="form-label">No. Faktur Supplier</label>
                             <input type="text" name="supplier_invoice_no" class="form-control" value="<?php echo htmlspecialchars($form_supplier_invoice_no ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
-                        <div class="col-12 col-md-4 mb-3">
+                        <div class="col-12 col-md-5 mb-3">
                             <label class="form-label">Tanggal Pembelian</label>
                             <div class="row g-2">
                                 <div class="col-6">
@@ -251,29 +251,121 @@
     </div>
  </div>
 <div class="modal fade" id="quickSupplierModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Tambah Pemasok Cepat</h5>
+                <h5 class="modal-title" id="quickSupplierModalTitle">Tambah Pemasok Cepat</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" autocomplete="off">
-                    <input type="hidden" name="action" value="quick_add_supplier">
+                <form id="quickSupplierForm" autocomplete="off">
+                    <input type="hidden" name="supplier_id" id="quick_supplier_id" value="">
+                    <input type="hidden" name="action" id="quick_supplier_action" value="quick_add_supplier">
                     <div class="mb-3">
                         <label class="form-label">Nama Pemasok</label>
-                        <input type="text" name="nama" class="form-control" required>
+                        <input type="text" name="nama" id="quick_supplier_nama" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Kontak</label>
-                        <input type="text" name="kontak" class="form-control">
+                        <input type="text" name="kontak" id="quick_supplier_kontak" class="form-control">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Alamat</label>
-                        <textarea name="alamat" class="form-control" rows="2"></textarea>
+                        <label class="form-label">Alamat Lengkap</label>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <label class="form-label">Tipe Alamat</label>
+                                <select name="input_type" id="supplier_input_type" class="form-select">
+                                    <option value="street_dropdown">Pilih dari Daftar Jalan</option>
+                                    <option value="manual_full">Input Manual Lengkap</option>
+                                    <option value="manual_partial">Input Manual Sederhana</option>
+                                </select>
+                                <small class="text-muted">Pilih cara input alamat</small>
+                            </div>
+                            <div class="col-md-8" id="street_input_section">
+                                <!-- Street Dropdown Section (Default) -->
+                                <div id="street_dropdown_section">
+                                    <label class="form-label">Pilih Alamat</label>
+                                    <select name="street_id" id="supplier_street_id" class="form-select" disabled>
+                                        <option value="">Pilih Desa Terlebih Dahulu</option>
+                                    </select>
+                                    <small class="text-muted">Jika alamat ada di daftar, pilih di sini</small>
+                                </div>
+                                <!-- Manual Full Section -->
+                                <div id="manual_full_section" class="d-none">
+                                    <div class="row g-2">
+                                        <div class="col-md-8">
+                                            <label class="form-label">Nama Jalan</label>
+                                            <input type="text" name="street_address" id="supplier_street_address" class="form-control" placeholder="Jl. Sudirman">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">No. Rumah</label>
+                                            <input type="text" name="nomor_rumah" id="supplier_nomor_rumah" class="form-control" placeholder="17">
+                                        </div>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-md-3">
+                                            <label class="form-label">Gedung/Bangunan</label>
+                                            <input type="text" name="nomor_bangunan" id="supplier_nomor_bangunan" class="form-control" placeholder="Gedung ABC">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Blok</label>
+                                            <input type="text" name="blok" id="supplier_blok" class="form-control" placeholder="A">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Lantai</label>
+                                            <input type="text" name="lantai" id="supplier_lantai" class="form-control" placeholder="3">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Unit</label>
+                                            <input type="text" name="nomor_unit" id="supplier_nomor_unit" class="form-control" placeholder="12">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <label class="form-label">Patokan Lokasi (Opsional)</label>
+                                            <input type="text" name="patokan_lokasi" id="supplier_patokan_lokasi" class="form-control" placeholder="Dekat Masjid Al-Ikhlas">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Manual Partial Section -->
+                                <div id="manual_partial_section" class="d-none">
+                                    <label class="form-label">Alamat Sederhana</label>
+                                    <textarea name="alamat_detail" id="quick_supplier_alamat_detail" class="form-control" rows="2" placeholder="Jl. Sudirman No. 17 RT 001 RW 002"></textarea>
+                                    <small class="text-muted">Isi alamat lengkap dalam satu baris</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Provinsi</label>
+                                <select name="province_id" id="supplier_province_id" class="form-select">
+                                    <option value="">Pilih Provinsi</option>
+                                    <?php foreach ($provinces as $p): ?>
+                                    <option value="<?php echo (int)$p['id']; ?>"><?php echo htmlspecialchars($p['name'], ENT_QUOTES, 'UTF-8'); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Kabupaten/Kota</label>
+                                <select name="regency_id" id="supplier_regency_id" class="form-select" disabled>
+                                    <option value="">Pilih Kabupaten</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Kecamatan</label>
+                                <select name="district_id" id="supplier_district_id" class="form-select" disabled>
+                                    <option value="">Pilih Kecamatan</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Desa/Kelurahan</label>
+                                <select name="village_id" id="supplier_village_id" class="form-select" disabled>
+                                    <option value="">Pilih Desa</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Simpan Pemasok</button>
+                    <div class="d-grid gap-2 d-md-flex">
+                        <button type="submit" class="btn btn-primary" id="quick_supplier_save_button">Simpan Pemasok</button>
+                        <button type="button" class="btn btn-outline-secondary d-none" id="quick_supplier_cancel_button" data-bs-dismiss="modal">Batal</button>
                     </div>
                 </form>
             </div>
@@ -1637,6 +1729,420 @@ $(function () {
                     alert(msg);
                 }
             });
+        });
+    }
+
+    // Address dropdown handlers
+    var $provinceSelect = $('#supplier_province_id');
+    var $regencySelect = $('#supplier_regency_id');
+    var $districtSelect = $('#supplier_district_id');
+    var $villageSelect = $('#supplier_village_id');
+    var $streetSelect = $('#supplier_street_id');
+    var $inputTypeSelect = $('#supplier_input_type');
+
+    function toggleAddressSections(inputType) {
+        // Hide all sections first
+        $('#street_dropdown_section, #manual_full_section, #manual_partial_section').addClass('d-none');
+        
+        // Show appropriate section
+        switch(inputType) {
+            case 'street_dropdown':
+                $('#street_dropdown_section').removeClass('d-none');
+                break;
+            case 'manual_full':
+                $('#manual_full_section').removeClass('d-none');
+                break;
+            case 'manual_partial':
+                $('#manual_partial_section').removeClass('d-none');
+                break;
+        }
+    }
+
+    function loadRegencies(provinceId) {
+        if (!provinceId) {
+            $regencySelect.html('<option value="">Pilih Kabupaten</option>').prop('disabled', true);
+            $districtSelect.html('<option value="">Pilih Kecamatan</option>').prop('disabled', true);
+            $villageSelect.html('<option value="">Pilih Desa</option>').prop('disabled', true);
+            $streetSelect.html('<option value="">Pilih Desa Terlebih Dahulu</option>').prop('disabled', true);
+            return;
+        }
+
+        $.ajax({
+            url: 'purchases.php?ajax=get_regencies',
+            method: 'GET',
+            data: { province_id: provinceId },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success && response.data) {
+                    var options = '<option value="">Pilih Kabupaten</option>';
+                    $.each(response.data, function(index, item) {
+                        options += '<option value="' + item.id + '">' + item.name + '</option>';
+                    });
+                    $regencySelect.html(options).prop('disabled', false);
+                    $districtSelect.html('<option value="">Pilih Kecamatan</option>').prop('disabled', true);
+                    $villageSelect.html('<option value="">Pilih Desa</option>').prop('disabled', true);
+                    $streetSelect.html('<option value="">Pilih Desa Terlebih Dahulu</option>').prop('disabled', true);
+                } else {
+                    $regencySelect.html('<option value="">Pilih Kabupaten</option>').prop('disabled', true);
+                }
+            },
+            error: function() {
+                $regencySelect.html('<option value="">Pilih Kabupaten</option>').prop('disabled', true);
+            }
+        });
+    }
+
+    function loadDistricts(regencyId) {
+        if (!regencyId) {
+            $districtSelect.html('<option value="">Pilih Kecamatan</option>').prop('disabled', true);
+            $villageSelect.html('<option value="">Pilih Desa</option>').prop('disabled', true);
+            $streetSelect.html('<option value="">Pilih Desa Terlebih Dahulu</option>').prop('disabled', true);
+            return;
+        }
+
+        $.ajax({
+            url: 'purchases.php?ajax=get_districts',
+            method: 'GET',
+            data: { regency_id: regencyId },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success && response.data) {
+                    var options = '<option value="">Pilih Kecamatan</option>';
+                    $.each(response.data, function(index, item) {
+                        options += '<option value="' + item.id + '">' + item.name + '</option>';
+                    });
+                    $districtSelect.html(options).prop('disabled', false);
+                    $villageSelect.html('<option value="">Pilih Desa</option>').prop('disabled', true);
+                    $streetSelect.html('<option value="">Pilih Desa Terlebih Dahulu</option>').prop('disabled', true);
+                } else {
+                    $districtSelect.html('<option value="">Pilih Kecamatan</option>').prop('disabled', true);
+                }
+            },
+            error: function() {
+                $districtSelect.html('<option value="">Pilih Kecamatan</option>').prop('disabled', true);
+            }
+        });
+    }
+
+    function loadVillages(districtId) {
+        if (!districtId) {
+            $villageSelect.html('<option value="">Pilih Desa</option>').prop('disabled', true);
+            $streetSelect.html('<option value="">Pilih Desa Terlebih Dahulu</option>').prop('disabled', true);
+            return;
+        }
+
+        $.ajax({
+            url: 'purchases.php?ajax=get_villages',
+            method: 'GET',
+            data: { district_id: districtId },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success && response.data) {
+                    var options = '<option value="">Pilih Desa</option>';
+                    $.each(response.data, function(index, item) {
+                        var displayText = item.name;
+                        if (item.postal_code) {
+                            displayText += ' (' + item.postal_code + ')';
+                        }
+                        options += '<option value="' + item.id + '" data-postal-code="' + (item.postal_code || '') + '">' + displayText + '</option>';
+                    });
+                    $villageSelect.html(options).prop('disabled', false);
+                    $streetSelect.html('<option value="">Pilih Desa Terlebih Dahulu</option>').prop('disabled', true);
+                } else {
+                    $villageSelect.html('<option value="">Pilih Desa</option>').prop('disabled', true);
+                }
+            },
+            error: function() {
+                $villageSelect.html('<option value="">Pilih Desa</option>').prop('disabled', true);
+            }
+        });
+    }
+
+    function loadStreets(villageId) {
+        if (!villageId) {
+            $streetSelect.html('<option value="">Pilih Desa Terlebih Dahulu</option>').prop('disabled', true);
+            return;
+        }
+
+        $.ajax({
+            url: 'purchases.php?ajax=get_streets',
+            method: 'GET',
+            data: { village_id: villageId },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success && response.data) {
+                    var options = '<option value="">-- Pilih Alamat --</option>';
+                    $.each(response.data, function(index, item) {
+                        options += '<option value="' + item.id + '" data-type="' + item.type + '" data-rt="' + (item.rt || '') + '" data-rw="' + (item.rw || '') + '">' + item.display_name + '</option>';
+                    });
+                    options += '<option value="manual">-- Alamat Tidak Ada di Daftar --</option>';
+                    $streetSelect.html(options).prop('disabled', false);
+                } else {
+                    $streetSelect.html('<option value="">Tidak Ada Alamat</option>').prop('disabled', true);
+                }
+            },
+            error: function() {
+                $streetSelect.html('<option value="">Gagal Memuat</option>').prop('disabled', true);
+            }
+        });
+    }
+
+    if ($provinceSelect.length) {
+        $provinceSelect.on('change', function() {
+            var provinceId = $(this).val();
+            loadRegencies(provinceId);
+        });
+    }
+
+    if ($regencySelect.length) {
+        $regencySelect.on('change', function() {
+            var regencyId = $(this).val();
+            loadDistricts(regencyId);
+        });
+    }
+
+    if ($districtSelect.length) {
+        $districtSelect.on('change', function() {
+            var districtId = $(this).val();
+            loadVillages(districtId);
+        });
+    }
+
+    if ($villageSelect.length) {
+        $villageSelect.on('change', function() {
+            var villageId = $(this).val();
+            loadStreets(villageId);
+        });
+    }
+
+    if ($streetSelect.length) {
+        $streetSelect.on('change', function() {
+            var selectedOption = $(this).find('option:selected');
+            var streetType = selectedOption.data('type');
+            var rt = selectedOption.data('rt');
+            var rw = selectedOption.data('rw');
+            
+            // Auto-fill alamat_detail jika street dipilih
+            if ($(this).val() && $(this).val() !== 'manual') {
+                var streetName = selectedOption.text().split(' RT')[0].split(' RW')[0].split(' (')[0];
+                var prefix = '';
+                switch(streetType) {
+                    case 'jalan': prefix = 'Jl. '; break;
+                    case 'gang': prefix = 'Gg. '; break;
+                    case 'lorong': prefix = 'Lr. '; break;
+                    case 'komplek': prefix = 'Komplek '; break;
+                    case 'perumahan': prefix = 'Perum. '; break;
+                    case 'jalan_raya': prefix = 'Jl. Raya '; break;
+                    case 'jalan_utama': prefix = 'Jl. Utama '; break;
+                    case 'jalan_tol': prefix = 'Jl. Tol '; break;
+                }
+                
+                var fullAddress = prefix + streetName;
+                if (rt) fullAddress += ' RT ' + rt;
+                if (rw) fullAddress += ' RW ' + rw;
+                
+                $('#quick_supplier_alamat_detail').val(fullAddress);
+                $('#quick_supplier_alamat_detail').prop('readonly', true);
+            } else {
+                $('#quick_supplier_alamat_detail').prop('readonly', false);
+            }
+        });
+    }
+
+    if ($inputTypeSelect.length) {
+        $inputTypeSelect.on('change', function() {
+            var inputType = $(this).val();
+            toggleAddressSections(inputType);
+            
+            // Clear manual fields when switching to street dropdown
+            if (inputType === 'street_dropdown') {
+                $('#supplier_street_address').val('');
+                $('#supplier_nomor_rumah').val('');
+                $('#supplier_nomor_bangunan').val('');
+                $('#supplier_blok').val('');
+                $('#supplier_lantai').val('');
+                $('#supplier_nomor_unit').val('');
+                $('#supplier_patokan_lokasi').val('');
+                $('#quick_supplier_alamat_detail').prop('readonly', false);
+            }
+        });
+    }
+
+    // Fungsi untuk load data alamat supplier
+    function loadSupplierAddress(supplierId) {
+        if (!supplierId) {
+            // Reset form
+            $('#quick_supplier_id').val('');
+            $('#quick_supplier_action').val('quick_add_supplier');
+            $('#quickSupplierModalTitle').text('Tambah Pemasok Cepat');
+            $('#quick_supplier_nama').val('');
+            $('#quick_supplier_kontak').val('');
+            
+            // Reset all input fields
+            $('#supplier_street_address').val('');
+            $('#supplier_nomor_rumah').val('');
+            $('#supplier_nomor_bangunan').val('');
+            $('#supplier_blok').val('');
+            $('#supplier_lantai').val('');
+            $('#supplier_nomor_unit').val('');
+            $('#supplier_patokan_lokasi').val('');
+            $('#quick_supplier_alamat_detail').val('').prop('readonly', false);
+            
+            // Reset dropdowns
+            $provinceSelect.val('').trigger('change');
+            $('#quick_supplier_save_button').text('Simpan Pemasok');
+            $('#quick_supplier_cancel_button').addClass('d-none');
+            
+            // Set default input type
+            $inputTypeSelect.val('street_dropdown').trigger('change');
+            return;
+        }
+
+        $.ajax({
+            url: 'purchases.php?ajax=get_supplier_address',
+            method: 'GET',
+            data: { supplier_id: supplierId },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success && response.data) {
+                    var addr = response.data;
+                    
+                    // Set form to edit mode
+                    $('#quick_supplier_id').val(supplierId);
+                    $('#quick_supplier_action').val('update_supplier_address');
+                    $('#quickSupplierModalTitle').text('Edit Alamat Pemasok');
+                    $('#quick_supplier_save_button').text('Update Alamat');
+                    $('#quick_supplier_cancel_button').removeClass('d-none');
+                    
+                    // Set input type first
+                    $inputTypeSelect.val(addr.input_type || 'manual_full').trigger('change');
+                    
+                    // Load location data
+                    if (addr.province_id) {
+                        $provinceSelect.val(addr.province_id);
+                        loadRegencies(addr.province_id);
+                        
+                        setTimeout(function() {
+                            if (addr.regency_id) {
+                                $regencySelect.val(addr.regency_id);
+                                loadDistricts(addr.regency_id);
+                                
+                                setTimeout(function() {
+                                    if (addr.district_id) {
+                                        $districtSelect.val(addr.district_id);
+                                        loadVillages(addr.district_id);
+                                        
+                                        setTimeout(function() {
+                                            if (addr.village_id) {
+                                                $villageSelect.val(addr.village_id);
+                                                loadStreets(addr.village_id);
+                                                
+                                                setTimeout(function() {
+                                                    if (addr.street_id && addr.input_type === 'street_dropdown') {
+                                                        $streetSelect.val(addr.street_id);
+                                                    }
+                                                }, 500);
+                                            }
+                                        }, 500);
+                                    }
+                                }, 500);
+                            }
+                        }, 500);
+                    }
+                    
+                    // Load manual fields after a delay
+                    setTimeout(function() {
+                        if (addr.input_type === 'manual_full') {
+                            $('#supplier_street_address').val(addr.street_address || '');
+                            $('#supplier_nomor_rumah').val(addr.nomor_rumah || '');
+                            $('#supplier_nomor_bangunan').val(addr.nomor_bangunan || '');
+                            $('#supplier_blok').val(addr.blok || '');
+                            $('#supplier_lantai').val(addr.lantai || '');
+                            $('#supplier_nomor_unit').val(addr.nomor_unit || '');
+                            $('#supplier_patokan_lokasi').val(addr.patokan_lokasi || '');
+                        } else if (addr.input_type === 'manual_partial') {
+                            $('#quick_supplier_alamat_detail').val(addr.street_address || '');
+                        }
+                    }, 2000);
+                }
+            },
+            error: function() {
+                console.log('Failed to load supplier address');
+            }
+        });
+    }
+
+    // Handler untuk form supplier
+    var $quickSupplierForm = $('#quickSupplierForm');
+    if ($quickSupplierForm.length) {
+        $quickSupplierForm.on('submit', function(e) {
+            e.preventDefault();
+            
+            var formData = new FormData(this);
+            var action = formData.get('action');
+            var isUpdate = action === 'update_supplier_address';
+            
+            var url = 'purchases.php';
+            if (isUpdate) {
+                url += '?ajax=1';
+            }
+            
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        if (typeof AppUtil !== 'undefined' && typeof AppUtil.showToast === 'function') {
+                            AppUtil.showToast(response.message, { type: 'success' });
+                        } else {
+                            alert(response.message);
+                        }
+                        
+                        // Close modal
+                        var modalEl = document.getElementById('quickSupplierModal');
+                        if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                            var modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) {
+                                modal.hide();
+                            }
+                        }
+                        
+                        // Reload suppliers dropdown if add new
+                        if (!isUpdate) {
+                            location.reload();
+                        }
+                    } else {
+                        if (typeof AppUtil !== 'undefined' && typeof AppUtil.showToast === 'function') {
+                            AppUtil.showToast(response.message, { type: 'error' });
+                        } else {
+                            alert(response.message);
+                        }
+                    }
+                },
+                error: function() {
+                    var msg = 'Terjadi kesalahan saat menyimpan data.';
+                    if (typeof AppUtil !== 'undefined' && typeof AppUtil.showToast === 'function') {
+                        AppUtil.showToast(msg, { type: 'error' });
+                    } else {
+                        alert(msg);
+                    }
+                }
+            });
+        });
+    }
+
+    // Modifikasi handler untuk supplier select di main form
+    var $mainSupplierSelect = $('#supplier_id');
+    if ($mainSupplierSelect.length) {
+        $mainSupplierSelect.on('change', function() {
+            var supplierId = $(this).val();
+            if (supplierId) {
+                loadSupplierAddress(supplierId);
+            }
         });
     }
 });

@@ -118,6 +118,425 @@ if ($ajaxMode === 'purchase_detail') {
     exit;
 }
 
+// AJAX endpoints untuk data alamat
+if ($ajaxMode === 'get_regencies') {
+    header('Content-Type: application/json; charset=utf-8');
+    $province_id = isset($_GET['province_id']) ? (int)$_GET['province_id'] : 0;
+    $response = ['success' => false, 'data' => []];
+    
+    if ($province_id > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+        $sql = "SELECT id, name FROM regencies WHERE province_id = ? ORDER BY name";
+        $stmt = $conn_alamat->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param('i', $province_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res) {
+                $regencies = [];
+                while ($row = $res->fetch_assoc()) {
+                    $regencies[] = $row;
+                }
+                $response['success'] = true;
+                $response['data'] = $regencies;
+            }
+            $stmt->close();
+        }
+    }
+    echo json_encode($response);
+    exit;
+}
+
+if ($ajaxMode === 'get_districts') {
+    header('Content-Type: application/json; charset=utf-8');
+    $regency_id = isset($_GET['regency_id']) ? (int)$_GET['regency_id'] : 0;
+    $response = ['success' => false, 'data' => []];
+    
+    if ($regency_id > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+        $sql = "SELECT id, name FROM districts WHERE regency_id = ? ORDER BY name";
+        $stmt = $conn_alamat->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param('i', $regency_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res) {
+                $districts = [];
+                while ($row = $res->fetch_assoc()) {
+                    $districts[] = $row;
+                }
+                $response['success'] = true;
+                $response['data'] = $districts;
+            }
+            $stmt->close();
+        }
+    }
+    echo json_encode($response);
+    exit;
+}
+
+if ($ajaxMode === 'get_villages') {
+    header('Content-Type: application/json; charset=utf-8');
+    $district_id = isset($_GET['district_id']) ? (int)$_GET['district_id'] : 0;
+    $response = ['success' => false, 'data' => []];
+    
+    if ($district_id > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+        $sql = "SELECT id, name, postal_code FROM villages WHERE district_id = ? ORDER BY name";
+        $stmt = $conn_alamat->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param('i', $district_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res) {
+                $villages = [];
+                while ($row = $res->fetch_assoc()) {
+                    $villages[] = $row;
+                }
+                $response['success'] = true;
+                $response['data'] = $villages;
+            }
+            $stmt->close();
+        }
+    }
+    echo json_encode($response);
+    exit;
+}
+
+// AJAX endpoint untuk mengambil data streets berdasarkan village
+if ($ajaxMode === 'get_streets') {
+    header('Content-Type: application/json; charset=utf-8');
+    $village_id = isset($_GET['village_id']) ? (int)$_GET['village_id'] : 0;
+    $response = ['success' => false, 'data' => []];
+    
+    if ($village_id > 0) {
+        $sql = "SELECT id, name, type, rt, rw, postal_code FROM alamat_db.streets WHERE village_id = ? AND is_active = 1 ORDER BY name";
+        $stmt = $conn_alamat->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param('i', $village_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res) {
+                $streets = [];
+                while ($row = $res->fetch_assoc()) {
+                    $streets[] = [
+                        'id' => $row['id'],
+                        'name' => $row['name'],
+                        'type' => $row['type'],
+                        'rt' => $row['rt'],
+                        'rw' => $row['rw'],
+                        'postal_code' => $row['postal_code'],
+                        'display_name' => $row['name'] . 
+                            ($row['rt'] ? ' RT ' . $row['rt'] : '') . 
+                            ($row['rw'] ? ' RW ' . $row['rw'] : '') .
+                            ($row['postal_code'] ? ' (' . $row['postal_code'] . ')' : '')
+                    ];
+                }
+                $response['success'] = true;
+                $response['data'] = $streets;
+            }
+            $stmt->close();
+        }
+    }
+    echo json_encode($response);
+    exit;
+}
+
+// AJAX endpoint untuk mengambil data alamat supplier
+if ($ajaxMode === 'get_supplier_address') {
+    header('Content-Type: application/json; charset=utf-8');
+    $supplier_id = isset($_GET['supplier_id']) ? (int)$_GET['supplier_id'] : 0;
+    $response = ['success' => false, 'data' => null];
+    
+    if ($supplier_id > 0) {
+        // Prioritaskan id_alamat_orang dari tabel orang
+        $sql = "SELECT a.*, oa.address_type 
+                FROM addresses a 
+                LEFT JOIN orang_addresses oa ON a.id = oa.address_id AND oa.orang_id = ? AND oa.address_type = 'supplier' AND oa.is_active = 1
+                WHERE a.id = (SELECT id_alamat_orang FROM orang WHERE id_orang = ? AND id_alamat_orang IS NOT NULL)
+                LIMIT 1";
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param('ii', $supplier_id, $supplier_id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($res && ($row = $res->fetch_assoc())) {
+                $response['success'] = true;
+                $response['data'] = [
+                    'street_address' => $row['street_address'],
+                    'street_id' => $row['street_id'],
+                    'nomor_rumah' => $row['nomor_rumah'],
+                    'nomor_bangunan' => $row['nomor_bangunan'],
+                    'blok' => $row['blok'],
+                    'lantai' => $row['lantai'],
+                    'nomor_unit' => $row['nomor_unit'],
+                    'patokan_lokasi' => $row['patokan_lokasi'],
+                    'input_type' => $row['input_type'],
+                    'province_id' => $row['province_id'],
+                    'regency_id' => $row['regency_id'],
+                    'district_id' => $row['district_id'],
+                    'village_id' => $row['village_id'],
+                    'postal_code' => $row['postal_code']
+                ];
+            }
+            $stmt->close();
+        }
+        
+        // Jika tidak ada id_alamat_orang, coba dari orang_addresses
+        if (!$response['success']) {
+            $sql = "SELECT a.*, oa.address_type 
+                    FROM addresses a 
+                    JOIN orang_addresses oa ON a.id = oa.address_id 
+                    WHERE oa.orang_id = ? AND oa.address_type = 'supplier' AND oa.is_active = 1 
+                    LIMIT 1";
+            $stmt = $conn->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $supplier_id);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($res && ($row = $res->fetch_assoc())) {
+                    $response['success'] = true;
+                    $response['data'] = [
+                        'street_address' => $row['street_address'],
+                        'street_id' => $row['street_id'],
+                        'nomor_rumah' => $row['nomor_rumah'],
+                        'nomor_bangunan' => $row['nomor_bangunan'],
+                        'blok' => $row['blok'],
+                        'lantai' => $row['lantai'],
+                        'nomor_unit' => $row['nomor_unit'],
+                        'patokan_lokasi' => $row['patokan_lokasi'],
+                        'input_type' => $row['input_type'],
+                        'province_id' => $row['province_id'],
+                        'regency_id' => $row['regency_id'],
+                        'district_id' => $row['district_id'],
+                        'village_id' => $row['village_id'],
+                        'postal_code' => $row['postal_code']
+                    ];
+                }
+                $stmt->close();
+            }
+        }
+    }
+    echo json_encode($response);
+    exit;
+}
+
+if ($ajaxMode === 'update_supplier_address') {
+    header('Content-Type: application/json; charset=utf-8');
+    $supplier_id = isset($_POST['supplier_id']) ? (int)$_POST['supplier_id'] : 0;
+    $alamat_detail = clean($_POST['alamat_detail'] ?? '');
+    $street_id = isset($_POST['street_id']) ? (int)$_POST['street_id'] : 0;
+    $province_id = isset($_POST['province_id']) ? (int)$_POST['province_id'] : 0;
+    $regency_id = isset($_POST['regency_id']) ? (int)$_POST['regency_id'] : 0;
+    $district_id = isset($_POST['district_id']) ? (int)$_POST['district_id'] : 0;
+    $village_id = isset($_POST['village_id']) ? (int)$_POST['village_id'] : 0;
+    
+    // New fields for manual input
+    $input_type = clean($_POST['input_type'] ?? 'manual_full');
+    $street_address = clean($_POST['street_address'] ?? '');
+    $nomor_rumah = clean($_POST['nomor_rumah'] ?? '');
+    $nomor_bangunan = clean($_POST['nomor_bangunan'] ?? '');
+    $blok = clean($_POST['blok'] ?? '');
+    $lantai = clean($_POST['lantai'] ?? '');
+    $nomor_unit = clean($_POST['nomor_unit'] ?? '');
+    $patokan_lokasi = clean($_POST['patokan_lokasi'] ?? '');
+    
+    // Jika street_id dipilih, gunakan data dari street untuk alamat_detail
+    if ($input_type === 'street_dropdown' && $street_id > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+        $sql_street = "SELECT name, type, rt, rw, postal_code FROM alamat_db.streets WHERE id = ?";
+        $stmt_street = $conn_alamat->prepare($sql_street);
+        if ($stmt_street) {
+            $stmt_street->bind_param('i', $street_id);
+            $stmt_street->execute();
+            $res_street = $stmt_street->get_result();
+            if ($res_street && ($row_street = $res_street->fetch_assoc())) {
+                $prefix = '';
+                switch($row_street['type']) {
+                    case 'jalan': $prefix = 'Jl. '; break;
+                    case 'gang': $prefix = 'Gg. '; break;
+                    case 'lorong': $prefix = 'Lr. '; break;
+                    case 'komplek': $prefix = 'Komplek '; break;
+                    case 'perumahan': $prefix = 'Perum. '; break;
+                    case 'jalan_raya': $prefix = 'Jl. Raya '; break;
+                    case 'jalan_utama': $prefix = 'Jl. Utama '; break;
+                    case 'jalan_tol': $prefix = 'Jl. Tol '; break;
+                }
+                
+                $alamat_detail = $prefix . $row_street['name'];
+                if ($row_street['rt']) $alamat_detail .= ' RT ' . $row_street['rt'];
+                if ($row_street['rw']) $alamat_detail .= ' RW ' . $row_street['rw'];
+                
+                // Override province_id, regency_id, district_id, village_id dari street
+                $sql_village = "SELECT village_id, district_id, regency_id, province_id FROM alamat_db.streets WHERE id = ?";
+                $stmt_village = $conn_alamat->prepare($sql_village);
+                if ($stmt_village) {
+                    $stmt_village->bind_param('i', $street_id);
+                    $stmt_village->execute();
+                    $res_village = $stmt_village->get_result();
+                    if ($res_village && ($row_village = $res_village->fetch_assoc())) {
+                        $village_id = $row_village['village_id'];
+                        $district_id = $row_village['district_id'];
+                        $regency_id = $row_village['regency_id'];
+                        $province_id = $row_village['province_id'];
+                    }
+                    $stmt_village->close();
+                }
+            }
+            $stmt_street->close();
+        }
+    } elseif ($input_type === 'manual_full') {
+        // Build alamat_detail from manual fields
+        $alamat_detail = $street_address;
+        if ($nomor_rumah) $alamat_detail .= ' No. ' . $nomor_rumah;
+        if ($nomor_bangunan) $alamat_detail .= ' ' . $nomor_bangunan;
+        if ($blok) $alamat_detail .= ' Blok ' . $blok;
+        if ($lantai) $alamat_detail .= ' Lantai ' . $lantai;
+        if ($nomor_unit) $alamat_detail .= ' Unit ' . $nomor_unit;
+        if ($patokan_lokasi) $alamat_detail .= ' (' . $patokan_lokasi . ')';
+    } elseif ($input_type === 'manual_partial') {
+        // Use alamat_detail as is
+        $alamat_detail = $alamat_detail;
+    }
+    
+    $response = ['success' => false, 'message' => ''];
+    
+    if ($supplier_id <= 0) {
+        $response['message'] = 'Supplier ID tidak valid.';
+    } else {
+        $conn->begin_transaction();
+        $ok = true;
+        
+        // Cek apakah supplier sudah punya alamat
+        $sql_check = "SELECT a.id FROM addresses a JOIN orang_addresses oa ON a.id = oa.address_id WHERE oa.orang_id = ? AND oa.address_type = 'supplier' AND oa.is_active = 1 LIMIT 1";
+        $stmt_check = $conn->prepare($sql_check);
+        $existing_address_id = null;
+        
+        if ($stmt_check) {
+            $stmt_check->bind_param('i', $supplier_id);
+            $stmt_check->execute();
+            $res_check = $stmt_check->get_result();
+            if ($res_check && ($row = $res_check->fetch_assoc())) {
+                $existing_address_id = $row['id'];
+            }
+            $stmt_check->close();
+        }
+        
+        // Get postal code
+        $postal_code = '';
+        if ($village_id > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+            $sql_postal = "SELECT postal_code FROM villages WHERE id = ?";
+            $stmt_postal = $conn_alamat->prepare($sql_postal);
+            if ($stmt_postal) {
+                $stmt_postal->bind_param('i', $village_id);
+                $stmt_postal->execute();
+                $res_postal = $stmt_postal->get_result();
+                if ($res_postal && ($row = $res_postal->fetch_assoc())) {
+                    $postal_code = $row['postal_code'] ?? '';
+                }
+                $stmt_postal->close();
+            }
+        }
+        
+        if ($existing_address_id) {
+            // Update existing address
+            $sql_update = "UPDATE addresses SET street_id = ?, street_address = ?, nomor_rumah = ?, nomor_bangunan = ?, blok = ?, lantai = ?, nomor_unit = ?, patokan_lokasi = ?, input_type = ?, province_id = ?, regency_id = ?, district_id = ?, village_id = ?, postal_code = ? WHERE id = ?";
+            $stmt_update = $conn->prepare($sql_update);
+            if ($stmt_update) {
+                $stmt_update->bind_param('isssssssisiiissi', $street_id, $street_address, $nomor_rumah, $nomor_bangunan, $blok, $lantai, $nomor_unit, $patokan_lokasi, $input_type, $province_id, $regency_id, $district_id, $village_id, $postal_code, $existing_address_id);
+                if (!$stmt_update->execute()) {
+                    $ok = false;
+                    $response['message'] = 'Gagal update alamat.';
+                }
+                $stmt_update->close();
+            } else {
+                $ok = false;
+                $response['message'] = 'Gagal menyiapkan query update alamat.';
+            }
+            
+            // Update id_alamat_orang di tabel orang (jika belum ada)
+            if ($ok) {
+                $sql_check_orang = "SELECT id_alamat_orang FROM orang WHERE id_orang = ?";
+                $stmt_check_orang = $conn->prepare($sql_check_orang);
+                if ($stmt_check_orang) {
+                    $stmt_check_orang->bind_param('i', $supplier_id);
+                    $stmt_check_orang->execute();
+                    $res_check_orang = $stmt_check_orang->get_result();
+                    $current_address_id = null;
+                    if ($res_check_orang && ($row = $res_check_orang->fetch_assoc())) {
+                        $current_address_id = $row['id_alamat_orang'];
+                    }
+                    $stmt_check_orang->close();
+                    
+                    if ($current_address_id != $existing_address_id) {
+                        $sql_update_orang = "UPDATE orang SET id_alamat_orang = ? WHERE id_orang = ?";
+                        $stmt_update_orang = $conn->prepare($sql_update_orang);
+                        if ($stmt_update_orang) {
+                            $stmt_update_orang->bind_param('ii', $existing_address_id, $supplier_id);
+                            $stmt_update_orang->execute();
+                            $stmt_update_orang->close();
+                        }
+                    }
+                }
+            }
+        } else {
+            // Insert new address
+            $sql_address = "INSERT INTO addresses (street_id, street_address, nomor_rumah, nomor_bangunan, blok, lantai, nomor_unit, patokan_lokasi, input_type, province_id, regency_id, district_id, village_id, postal_code, address_type, is_primary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'supplier', 1)";
+            $stmt_address = $conn->prepare($sql_address);
+            if ($stmt_address) {
+                $stmt_address->bind_param('isssssssisiiiss', $street_id, $street_address, $nomor_rumah, $nomor_bangunan, $blok, $lantai, $nomor_unit, $patokan_lokasi, $input_type, $province_id, $regency_id, $district_id, $village_id, $postal_code);
+                if (!$stmt_address->execute()) {
+                    $ok = false;
+                    $response['message'] = 'Gagal menyimpan alamat baru.';
+                }
+                $address_id = $stmt_address->insert_id;
+                $stmt_address->close();
+            } else {
+                $ok = false;
+                $response['message'] = 'Gagal menyiapkan query alamat baru.';
+            }
+            
+            // Hubungkan dengan supplier
+            if ($ok && isset($address_id)) {
+                $sql_orang_address = "INSERT INTO orang_addresses (orang_id, address_id, address_type) VALUES (?, ?, 'supplier')";
+                $stmt_orang_address = $conn->prepare($sql_orang_address);
+                if ($stmt_orang_address) {
+                    $stmt_orang_address->bind_param('ii', $supplier_id, $address_id);
+                    if (!$stmt_orang_address->execute()) {
+                        $ok = false;
+                        $response['message'] = 'Gagal menghubungkan alamat dengan supplier.';
+                    }
+                    $stmt_orang_address->close();
+                } else {
+                    $ok = false;
+                    $response['message'] = 'Gagal menyiapkan query hubungan alamat.';
+                }
+                
+                // Update id_alamat_orang di tabel orang
+                if ($ok) {
+                    $sql_update_orang = "UPDATE orang SET id_alamat_orang = ? WHERE id_orang = ?";
+                    $stmt_update_orang = $conn->prepare($sql_update_orang);
+                    if ($stmt_update_orang) {
+                        $stmt_update_orang->bind_param('ii', $address_id, $supplier_id);
+                        if (!$stmt_update_orang->execute()) {
+                            // Trigger akan menghandle ini, tapi kita log error untuk debugging
+                            error_log("Warning: Failed to update id_alamat_orang for supplier_id: $supplier_id");
+                        }
+                        $stmt_update_orang->close();
+                    }
+                }
+            }
+        }
+        
+        if ($ok) {
+            $conn->commit();
+            $response['success'] = true;
+            $response['message'] = 'Alamat supplier berhasil diperbarui.';
+        } else {
+            $conn->rollback();
+        }
+    }
+    
+    echo json_encode($response);
+    exit;
+}
+
 $error = '';
 $success = '';
 $suppliers = [];
@@ -601,23 +1020,174 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($action === 'quick_add_supplier') {
         $nama = clean($_POST['nama'] ?? '');
         $kontak = clean($_POST['kontak'] ?? '');
-        $alamat = clean($_POST['alamat'] ?? '');
+        $alamat_detail = clean($_POST['alamat_detail'] ?? '');
+        $street_id = isset($_POST['street_id']) ? (int)$_POST['street_id'] : 0;
+        $province_id = isset($_POST['province_id']) ? (int)$_POST['province_id'] : 0;
+        $regency_id = isset($_POST['regency_id']) ? (int)$_POST['regency_id'] : 0;
+        $district_id = isset($_POST['district_id']) ? (int)$_POST['district_id'] : 0;
+        $village_id = isset($_POST['village_id']) ? (int)$_POST['village_id'] : 0;
+        
+        // New fields for manual input
+        $input_type = clean($_POST['input_type'] ?? 'manual_full');
+        $street_address = clean($_POST['street_address'] ?? '');
+        $nomor_rumah = clean($_POST['nomor_rumah'] ?? '');
+        $nomor_bangunan = clean($_POST['nomor_bangunan'] ?? '');
+        $blok = clean($_POST['blok'] ?? '');
+        $lantai = clean($_POST['lantai'] ?? '');
+        $nomor_unit = clean($_POST['nomor_unit'] ?? '');
+        $patokan_lokasi = clean($_POST['patokan_lokasi'] ?? '');
+        
+        // Jika street_id dipilih, gunakan data dari street untuk alamat_detail
+        if ($input_type === 'street_dropdown' && $street_id > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+            $sql_street = "SELECT name, type, rt, rw, postal_code FROM alamat_db.streets WHERE id = ?";
+            $stmt_street = $conn_alamat->prepare($sql_street);
+            if ($stmt_street) {
+                $stmt_street->bind_param('i', $street_id);
+                $stmt_street->execute();
+                $res_street = $stmt_street->get_result();
+                if ($res_street && ($row_street = $res_street->fetch_assoc())) {
+                    $prefix = '';
+                    switch($row_street['type']) {
+                        case 'jalan': $prefix = 'Jl. '; break;
+                        case 'gang': $prefix = 'Gg. '; break;
+                        case 'lorong': $prefix = 'Lr. '; break;
+                        case 'komplek': $prefix = 'Komplek '; break;
+                        case 'perumahan': $prefix = 'Perum. '; break;
+                        case 'jalan_raya': $prefix = 'Jl. Raya '; break;
+                        case 'jalan_utama': $prefix = 'Jl. Utama '; break;
+                        case 'jalan_tol': $prefix = 'Jl. Tol '; break;
+                    }
+                    
+                    $alamat_detail = $prefix . $row_street['name'];
+                    if ($row_street['rt']) $alamat_detail .= ' RT ' . $row_street['rt'];
+                    if ($row_street['rw']) $alamat_detail .= ' RW ' . $row_street['rw'];
+                    
+                    // Override province_id, regency_id, district_id, village_id dari street
+                    $sql_village = "SELECT village_id, district_id, regency_id, province_id FROM alamat_db.streets WHERE id = ?";
+                    $stmt_village = $conn_alamat->prepare($sql_village);
+                    if ($stmt_village) {
+                        $stmt_village->bind_param('i', $street_id);
+                        $stmt_village->execute();
+                        $res_village = $stmt_village->get_result();
+                        if ($res_village && ($row_village = $res_village->fetch_assoc())) {
+                            $village_id = $row_village['village_id'];
+                            $district_id = $row_village['district_id'];
+                            $regency_id = $row_village['regency_id'];
+                            $province_id = $row_village['province_id'];
+                        }
+                        $stmt_village->close();
+                    }
+                }
+                $stmt_street->close();
+            }
+        } elseif ($input_type === 'manual_full') {
+            // Build alamat_detail from manual fields
+            $alamat_detail = $street_address;
+            if ($nomor_rumah) $alamat_detail .= ' No. ' . $nomor_rumah;
+            if ($nomor_bangunan) $alamat_detail .= ' ' . $nomor_bangunan;
+            if ($blok) $alamat_detail .= ' Blok ' . $blok;
+            if ($lantai) $alamat_detail .= ' Lantai ' . $lantai;
+            if ($nomor_unit) $alamat_detail .= ' Unit ' . $nomor_unit;
+            if ($patokan_lokasi) $alamat_detail .= ' (' . $patokan_lokasi . ')';
+        } elseif ($input_type === 'manual_partial') {
+            // Use alamat_detail as is
+            $alamat_detail = $alamat_detail;
+        }
+        
         if ($nama === '') {
             $error = 'Nama pemasok wajib diisi.';
         } else {
-            $sql = "INSERT INTO orang (nama_lengkap, alamat, kontak, is_supplier, is_customer, is_active) VALUES (?, ?, ?, 1, 0, 1)";
-            $stmt = $conn->prepare($sql);
-            if ($stmt) {
-                $stmt->bind_param('sss', $nama, $alamat, $kontak);
-                if ($stmt->execute()) {
-                    $success = 'Pemasok baru berhasil ditambahkan.';
-                    $form_supplier_id = (int)$stmt->insert_id;
-                } else {
-                    $error = 'Gagal menambahkan pemasok baru.';
+            $conn->begin_transaction();
+            $ok = true;
+            
+            // Insert data orang terlebih dahulu
+            $sql_orang = "INSERT INTO orang (nama_lengkap, kontak, is_supplier, is_customer, is_active) VALUES (?, ?, 1, 0, 1)";
+            $stmt_orang = $conn->prepare($sql_orang);
+            if ($stmt_orang) {
+                $stmt_orang->bind_param('ss', $nama, $kontak);
+                if (!$stmt_orang->execute()) {
+                    $ok = false;
+                    $error = 'Gagal menambahkan data pemasok.';
                 }
-                $stmt->close();
+                $orang_id = $stmt_orang->insert_id;
+                $stmt_orang->close();
             } else {
-                $error = 'Gagal menyiapkan query tambah pemasok.';
+                $ok = false;
+                $error = 'Gagal menyiapkan query data pemasok.';
+            }
+            
+            // Jika ada data alamat, simpan ke tabel addresses
+            if ($ok && ($province_id > 0 || $regency_id > 0 || $district_id > 0 || $village_id > 0 || $alamat_detail !== '')) {
+                $postal_code = '';
+                
+                // Get postal code dari village jika ada
+                if ($village_id > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+                    $sql_postal = "SELECT postal_code FROM villages WHERE id = ?";
+                    $stmt_postal = $conn_alamat->prepare($sql_postal);
+                    if ($stmt_postal) {
+                        $stmt_postal->bind_param('i', $village_id);
+                        $stmt_postal->execute();
+                        $res_postal = $stmt_postal->get_result();
+                        if ($res_postal && ($row = $res_postal->fetch_assoc())) {
+                            $postal_code = $row['postal_code'] ?? '';
+                        }
+                        $stmt_postal->close();
+                    }
+                }
+                
+                $sql_address = "INSERT INTO addresses (street_id, street_address, nomor_rumah, nomor_bangunan, blok, lantai, nomor_unit, patokan_lokasi, input_type, province_id, regency_id, district_id, village_id, postal_code, address_type, is_primary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'supplier', 1)";
+                $stmt_address = $conn->prepare($sql_address);
+                if ($stmt_address) {
+                    $stmt_address->bind_param('isssssssisiiiss', $street_id, $street_address, $nomor_rumah, $nomor_bangunan, $blok, $lantai, $nomor_unit, $patokan_lokasi, $input_type, $province_id, $regency_id, $district_id, $village_id, $postal_code);
+                    if (!$stmt_address->execute()) {
+                        $ok = false;
+                        $error = 'Gagal menyimpan data alamat.';
+                    }
+                    $address_id = $stmt_address->insert_id;
+                    $stmt_address->close();
+                } else {
+                    $ok = false;
+                    $error = 'Gagal menyiapkan query alamat.';
+                }
+                
+                // Hubungkan orang dengan alamat
+                if ($ok && isset($address_id)) {
+                    $sql_orang_address = "INSERT INTO orang_addresses (orang_id, address_id, address_type) VALUES (?, ?, 'supplier')";
+                    $stmt_orang_address = $conn->prepare($sql_orang_address);
+                    if ($stmt_orang_address) {
+                        $stmt_orang_address->bind_param('ii', $orang_id, $address_id);
+                        if (!$stmt_orang_address->execute()) {
+                            $ok = false;
+                            $error = 'Gagal menghubungkan alamat dengan pemasok.';
+                        }
+                        $stmt_orang_address->close();
+                    } else {
+                        $ok = false;
+                        $error = 'Gagal menyiapkan query hubungan alamat.';
+                    }
+                    
+                    // Update id_alamat_orang di tabel orang
+                    if ($ok) {
+                        $sql_update_orang = "UPDATE orang SET id_alamat_orang = ? WHERE id_orang = ?";
+                        $stmt_update_orang = $conn->prepare($sql_update_orang);
+                        if ($stmt_update_orang) {
+                            $stmt_update_orang->bind_param('ii', $address_id, $orang_id);
+                            if (!$stmt_update_orang->execute()) {
+                                // Trigger akan menghandle ini, tapi kita log error untuk debugging
+                                error_log("Warning: Failed to update id_alamat_orang for orang_id: $orang_id");
+                            }
+                            $stmt_update_orang->close();
+                        }
+                    }
+                }
+            }
+            
+            if ($ok) {
+                $conn->commit();
+                $success = 'Pemasok baru berhasil ditambahkan.';
+                $form_supplier_id = (int)$orang_id;
+            } else {
+                $conn->rollback();
             }
         }
 
@@ -648,6 +1218,18 @@ $resSuppliers = $conn->query($sqlSuppliers);
 if ($resSuppliers) {
     while ($row = $resSuppliers->fetch_assoc()) {
         $suppliers[] = $row;
+    }
+}
+
+// Ambil data provinsi untuk dropdown alamat
+$provinces = [];
+if (isset($conn_alamat) && $conn_alamat->connect_error === null) {
+    $sqlProvinces = "SELECT id, name FROM provinces ORDER BY name";
+    $resProvinces = $conn_alamat->query($sqlProvinces);
+    if ($resProvinces) {
+        while ($row = $resProvinces->fetch_assoc()) {
+            $provinces[] = $row;
+        }
     }
 }
 

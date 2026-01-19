@@ -1,5 +1,16 @@
 <?php
-session_start();
+// Error reporting configuration
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // Don't display errors in production
+ini_set('log_errors', 1); // Log errors to file
+ini_set('error_log', __DIR__ . '/logs/php_errors.log');
+
+session_start([
+    'cookie_httponly' => true,
+    'cookie_secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+    'cookie_samesite' => 'Strict',
+    'use_strict_mode' => true
+]);
 
 // Check if running in Docker environment
 $is_docker = file_exists('.dockerenv') || (getenv('DOCKER_ENV') === 'true');
@@ -95,12 +106,15 @@ if ($is_docker) {
 }
 
 if ($conn->connect_error) {
-    die('Database connection failed: ' . $conn->connect_error);
+    error_log("Database connection failed: " . $conn->connect_error);
+    die('Database connection failed. Please check your configuration.');
 }
 $conn->set_charset('utf8mb4');
 
 if ($conn_alamat->connect_error) {
-    die('Alamat database connection failed: ' . $conn_alamat->connect_error);
+    error_log("Alamat database connection failed: " . $conn_alamat->connect_error);
+    // Don't die, just log the error for alamat_db
+    // die('Alamat database connection failed: ' . $conn_alamat->connect_error);
 }
 $conn_alamat->set_charset('utf8mb4');
 
@@ -109,7 +123,43 @@ function clean($value)
     if ($value === null) {
         return '';
     }
-    return htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8');
+    // Additional sanitization for security
+    $value = trim($value);
+    $value = stripslashes($value);
+    return htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
+
+// Function to validate and sanitize input
+function validate_input($data, $type = 'string') {
+    if ($data === null) {
+        return null;
+    }
+    
+    switch ($type) {
+        case 'int':
+            return filter_var($data, FILTER_VALIDATE_INT);
+        case 'email':
+            return filter_var($data, FILTER_VALIDATE_EMAIL);
+        case 'float':
+            return filter_var($data, FILTER_VALIDATE_FLOAT);
+        default:
+            return clean($data);
+    }
+}
+
+// CSRF Protection
+function generate_csrf_token() {
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function verify_csrf_token($token) {
+    if (!isset($_SESSION['csrf_token'])) {
+        return false;
+    }
+    return hash_equals($_SESSION['csrf_token'], $token);
 }
 
 function redirect($url)

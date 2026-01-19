@@ -121,10 +121,19 @@
                         <label class="form-label">Kontak</label>
                         <input type="text" name="kontak" class="form-control" value="<?php echo $edit_customer ? htmlspecialchars($edit_customer['kontak'], ENT_QUOTES, 'UTF-8') : ''; ?>">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Alamat</label>
-                        <textarea name="alamat" class="form-control" rows="3"><?php echo $edit_customer ? htmlspecialchars($edit_customer['alamat'], ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
-                    </div>
+                    <?php
+                    require_once __DIR__ . DIRECTORY_SEPARATOR . 'address_helper.php';
+                    $address_values = [
+                        'province_id' => $edit_customer['province_id'] ?? 0,
+                        'regency_id' => $edit_customer['regency_id'] ?? 0,
+                        'district_id' => $edit_customer['district_id'] ?? 0,
+                        'village_id' => $edit_customer['village_id'] ?? 0,
+                        'street_address' => $edit_customer['alamat'] ?? '',
+                        'postal_code' => $edit_customer['postal_code'] ?? '',
+                        'tipe_alamat' => $edit_customer['tipe_alamat'] ?? ''
+                    ];
+                    render_address_fields('', $address_values, true, true);
+                    ?>
                     <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" id="also_supplier" name="also_supplier" <?php echo $edit_customer && isset($edit_customer['is_supplier']) && (int)$edit_customer['is_supplier'] === 1 ? 'checked' : ''; ?>>
                         <label class="form-check-label" for="also_supplier">
@@ -217,6 +226,7 @@ $(function () {
     }
 });
 </script>
+<?php render_address_script(''); ?>
 <?php if ($edit_customer): ?>
 <script>
 $(function () {

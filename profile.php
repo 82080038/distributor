@@ -5,6 +5,77 @@ require_login();
 $error = '';
 $success = '';
 
+if (isset($_GET['ajax'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $ajaxMode = $_GET['ajax'];
+    $response = ['success' => false, 'data' => []];
+
+    if ($ajaxMode === 'get_regencies' && isset($_GET['province_id'])) {
+        $provinceId = (int)$_GET['province_id'];
+        if ($provinceId > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+            $sql = "SELECT id, name FROM regencies WHERE province_id = ? ORDER BY name";
+            $stmt = $conn_alamat->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $provinceId);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($res) {
+                    $regencies = [];
+                    while ($row = $res->fetch_assoc()) {
+                        $regencies[] = $row;
+                    }
+                    $response['success'] = true;
+                    $response['data'] = $regencies;
+                }
+                $stmt->close();
+            }
+        }
+    } elseif ($ajaxMode === 'get_districts' && isset($_GET['regency_id'])) {
+        $regencyId = (int)$_GET['regency_id'];
+        if ($regencyId > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+            $sql = "SELECT id, name FROM districts WHERE regency_id = ? ORDER BY name";
+            $stmt = $conn_alamat->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $regencyId);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($res) {
+                    $districts = [];
+                    while ($row = $res->fetch_assoc()) {
+                        $districts[] = $row;
+                    }
+                    $response['success'] = true;
+                    $response['data'] = $districts;
+                }
+                $stmt->close();
+            }
+        }
+    } elseif ($ajaxMode === 'get_villages' && isset($_GET['district_id'])) {
+        $districtId = (int)$_GET['district_id'];
+        if ($districtId > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+            $sql = "SELECT id, name, postal_code FROM villages WHERE district_id = ? ORDER BY name";
+            $stmt = $conn_alamat->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $districtId);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($res) {
+                    $villages = [];
+                    while ($row = $res->fetch_assoc()) {
+                        $villages[] = $row;
+                    }
+                    $response['success'] = true;
+                    $response['data'] = $villages;
+                }
+                $stmt->close();
+            }
+        }
+    }
+
+    echo json_encode($response);
+    exit;
+}
+
 if (isset($_GET['alamat_action'])) {
     header('Content-Type: application/json; charset=utf-8');
     $action = $_GET['alamat_action'];
@@ -68,31 +139,28 @@ $user = current_user();
 $profile = null;
 
 if ($user && isset($user['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . DIRECTORY_SEPARATOR . 'address_helper.php';
     $phone = clean($_POST['phone'] ?? '');
-    $alamat = clean($_POST['alamat'] ?? '');
-    $province_id = (int)($_POST['province_id'] ?? 0);
-    $regency_id = (int)($_POST['regency_id'] ?? 0);
-    $district_id = (int)($_POST['district_id'] ?? 0);
-    $village_id = (int)($_POST['village_id'] ?? 0);
-    $postal_code = clean($_POST['postal_code'] ?? '');
-
-    if ($phone === '' || $alamat === '') {
-        $error = 'Form alamat belum lengkap. Silakan isi Nomor HP dan Alamat Jalan.';
+    
+    $address_validation = validate_address_fields('', true);
+    
+    if ($phone === '') {
+        $error = 'Nomor HP wajib diisi.';
     } elseif (!preg_match('/^[0-9+\s-]{8,20}$/', $phone)) {
         $error = 'Nomor HP tidak valid. Gunakan hanya angka, spasi, tanda + atau -, minimal 8 karakter.';
-    } elseif ($province_id === 0 || $regency_id === 0 || $district_id === 0) {
-        $error = 'Alamat wilayah belum lengkap. Pilih Provinsi, Kabupaten/Kota, dan Kecamatan.';
-    } elseif ($postal_code === '') {
-        $error = 'Kode pos belum terisi. Pilih Kelurahan/Desa agar kode pos terisi otomatis.';
+    } elseif (!$address_validation['valid']) {
+        $error = 'Alamat belum lengkap: ' . implode(', ', $address_validation['errors']);
     } else {
         $userId = (int)$user['id'];
+        $address_data = $address_validation['data'];
+        
         $sqlUpdate = "UPDATE orang o
                       JOIN user u ON u.id_orang = o.id_orang
-                      SET o.kontak = ?, o.alamat = ?, o.province_id = ?, o.regency_id = ?, o.district_id = ?, o.village_id = ?, o.postal_code = ?
+                      SET o.kontak = ?, o.alamat = ?, o.province_id = ?, o.regency_id = ?, o.district_id = ?, o.village_id = ?, o.postal_code = ?, o.tipe_alamat = ?
                       WHERE u.id_user = ?";
         $stmtUpdate = $conn->prepare($sqlUpdate);
         if ($stmtUpdate) {
-            $stmtUpdate->bind_param('ssiiiiis', $phone, $alamat, $province_id, $regency_id, $district_id, $village_id, $postal_code, $userId);
+            $stmtUpdate->bind_param('ssiiiiiss', $phone, $address_data['street_address'], $address_data['province_id'], $address_data['regency_id'], $address_data['district_id'], $address_data['village_id'], $address_data['postal_code'], $address_data['tipe_alamat'], $userId);
             if ($stmtUpdate->execute()) {
                 $success = 'Alamat pribadi berhasil diperbarui.';
             } else {
@@ -108,7 +176,7 @@ if ($user && isset($user['id']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($user && isset($user['id'])) {
     $userId = (int)$user['id'];
     $sql = "SELECT u.id_user, u.username, o.nama_lengkap, o.alamat, o.kontak, 
-                   o.province_id, o.regency_id, o.district_id, o.village_id, o.postal_code,
+                   o.province_id, o.regency_id, o.district_id, o.village_id, o.postal_code, o.tipe_alamat,
                    r.name AS role_name,
                    p.nama_perusahaan AS perusahaan_nama,
                    p.alamat AS perusahaan_alamat,

@@ -2,6 +2,77 @@
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
 require_login();
 
+if (isset($_GET['ajax'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $ajaxMode = $_GET['ajax'];
+    $response = ['success' => false, 'data' => []];
+
+    if ($ajaxMode === 'get_regencies' && isset($_GET['province_id'])) {
+        $provinceId = (int)$_GET['province_id'];
+        if ($provinceId > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+            $sql = "SELECT id, name FROM regencies WHERE province_id = ? ORDER BY name";
+            $stmt = $conn_alamat->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $provinceId);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($res) {
+                    $regencies = [];
+                    while ($row = $res->fetch_assoc()) {
+                        $regencies[] = $row;
+                    }
+                    $response['success'] = true;
+                    $response['data'] = $regencies;
+                }
+                $stmt->close();
+            }
+        }
+    } elseif ($ajaxMode === 'get_districts' && isset($_GET['regency_id'])) {
+        $regencyId = (int)$_GET['regency_id'];
+        if ($regencyId > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+            $sql = "SELECT id, name FROM districts WHERE regency_id = ? ORDER BY name";
+            $stmt = $conn_alamat->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $regencyId);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($res) {
+                    $districts = [];
+                    while ($row = $res->fetch_assoc()) {
+                        $districts[] = $row;
+                    }
+                    $response['success'] = true;
+                    $response['data'] = $districts;
+                }
+                $stmt->close();
+            }
+        }
+    } elseif ($ajaxMode === 'get_villages' && isset($_GET['district_id'])) {
+        $districtId = (int)$_GET['district_id'];
+        if ($districtId > 0 && isset($conn_alamat) && $conn_alamat->connect_error === null) {
+            $sql = "SELECT id, name, postal_code FROM villages WHERE district_id = ? ORDER BY name";
+            $stmt = $conn_alamat->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $districtId);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($res) {
+                    $villages = [];
+                    while ($row = $res->fetch_assoc()) {
+                        $villages[] = $row;
+                    }
+                    $response['success'] = true;
+                    $response['data'] = $villages;
+                }
+                $stmt->close();
+            }
+        }
+    }
+
+    echo json_encode($response);
+    exit;
+}
+
 $ajaxMode = isset($_GET['ajax']) ? $_GET['ajax'] : '';
 if ($ajaxMode === 'search_customers') {
     header('Content-Type: application/json; charset=utf-8');
@@ -42,21 +113,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
     if ($action === 'save') {
+        require_once __DIR__ . DIRECTORY_SEPARATOR . 'address_helper.php';
         $id = isset($_POST['customer_id']) ? (int)$_POST['customer_id'] : 0;
         $nama = clean($_POST['nama'] ?? '');
-        $alamat = clean($_POST['alamat'] ?? '');
         $kontak = clean($_POST['kontak'] ?? '');
         $is_active = isset($_POST['is_active']) ? 1 : 0;
         $also_supplier = isset($_POST['also_supplier']) ? 1 : 0;
+        
+        $address_validation = validate_address_fields('', true);
+        $alamat = $address_validation['data']['street_address'];
+        $province_id = $address_validation['data']['province_id'];
+        $regency_id = $address_validation['data']['regency_id'];
+        $district_id = $address_validation['data']['district_id'];
+        $village_id = $address_validation['data']['village_id'];
+        $postal_code = $address_validation['data']['postal_code'];
 
         if ($nama === '') {
             $error = 'Nama pembeli wajib diisi.';
+        } elseif (!$address_validation['valid']) {
+            $error = 'Alamat belum lengkap: ' . implode(', ', $address_validation['errors']);
         } else {
             if ($id > 0) {
-                $sql = "UPDATE orang SET nama_lengkap = ?, alamat = ?, kontak = ?, is_supplier = ?, is_customer = 1, is_active = ? WHERE id_orang = ?";
+                $sql = "UPDATE orang SET nama_lengkap = ?, alamat = ?, kontak = ?, is_supplier = ?, is_customer = 1, is_active = ?, province_id = ?, regency_id = ?, district_id = ?, village_id = ?, postal_code = ?, tipe_alamat = ? WHERE id_orang = ?";
                 $stmt = $conn->prepare($sql);
                 if ($stmt) {
-                    $stmt->bind_param('sssiii', $nama, $alamat, $kontak, $also_supplier, $is_active, $id);
+                    $stmt->bind_param('ssssiiiiiii', $nama, $alamat, $kontak, $also_supplier, $is_active, $province_id, $regency_id, $district_id, $village_id, $postal_code, $address_validation['data']['tipe_alamat'], $id);
                     if ($stmt->execute()) {
                         $success = 'Data pembeli berhasil diperbarui.';
                     } else {
@@ -67,10 +148,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Gagal menyiapkan query update pembeli.';
                 }
             } else {
-                $sql = "INSERT INTO orang (nama_lengkap, alamat, kontak, is_supplier, is_customer, is_active) VALUES (?, ?, ?, ?, 1, ?)";
+                $sql = "INSERT INTO orang (nama_lengkap, alamat, kontak, is_supplier, is_customer, is_active, province_id, regency_id, district_id, village_id, postal_code, tipe_alamat) VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($sql);
                 if ($stmt) {
-                    $stmt->bind_param('sssii', $nama, $alamat, $kontak, $also_supplier, $is_active);
+                    $stmt->bind_param('sssiiiiiiii', $nama, $alamat, $kontak, $also_supplier, $is_active, $province_id, $regency_id, $district_id, $village_id, $postal_code, $address_validation['data']['tipe_alamat']);
                     if ($stmt->execute()) {
                         $success = 'Data pembeli baru berhasil disimpan.';
                     } else {
@@ -154,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $edit_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($edit_id > 0) {
-    $sqlEdit = "SELECT id_orang, nama_lengkap, alamat, kontak, is_active, is_supplier FROM orang WHERE id_orang = ? AND is_customer = 1 LIMIT 1";
+    $sqlEdit = "SELECT id_orang, nama_lengkap, alamat, kontak, is_active, is_supplier, province_id, regency_id, district_id, village_id, postal_code, tipe_alamat FROM orang WHERE id_orang = ? AND is_customer = 1 LIMIT 1";
     $stmtEdit = $conn->prepare($sqlEdit);
     if ($stmtEdit) {
         $stmtEdit->bind_param('i', $edit_id);
