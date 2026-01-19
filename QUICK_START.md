@@ -18,6 +18,25 @@ docker-compose up -d --build
 # Database: http://localhost:8081
 ```
 
+## 🔍 Port Detection (NEW!)
+
+Aplikasi sekarang memiliki **automatic port detection** untuk menemukan port MySQL yang tersedia:
+
+### **Cek Port yang Tersedia:**
+```bash
+# Jalankan port detector
+php port_detector.php
+
+# Output akan menunjukkan port yang bisa digunakan
+# Contoh:
+# 🎯 Found working MySQL port: 3307
+```
+
+### **Konfigurasi Otomatis:**
+- **Docker**: Port 3307, 3306, 3308, 3309 (auto-scan)
+- **Windows**: Port 3306, 3307, 3308 (auto-scan)  
+- **Linux**: Port 3306, 3307, 3308 (auto-scan)
+
 ## 📋 Platform Matrix
 
 | Platform | Docker Tool | Install Command | Access URL |

@@ -4,16 +4,42 @@ session_start();
 // Check if running in Docker environment
 $is_docker = file_exists('.dockerenv') || (getenv('DOCKER_ENV') === 'true');
 
+// Function to find available MySQL port
+function find_available_mysql_port($default_port = 3307) {
+    $ports_to_try = [$default_port, 3306, 3308, 3309, 3310];
+    
+    foreach ($ports_to_try as $port) {
+        $connection = @fsockopen('127.0.0.1', $port, $errno, $errstr, 2);
+        if ($connection) {
+            fclose($connection);
+            // Port is available, but check if it's actually our MySQL
+            $test_conn = @new mysqli('127.0.0.1', 'root', '', 'distributor', $port);
+            if ($test_conn && !$test_conn->connect_error) {
+                $test_conn->close();
+                return $port;
+            }
+        }
+    }
+    
+    // If no port works, return default
+    return $default_port;
+}
+
 // Docker vs Native vs Windows database configuration
 if ($is_docker) {
-    // Docker environment
+    // Docker environment - find available port
+    $available_port = find_available_mysql_port(3307);
     define('DB_HOST', 'mysql');
     define('DB_USER', 'distributor_user');
     define('DB_PASS', 'distributor_pass');
     define('DB_NAME', 'distributor');
     define('DB_NAME_ALAMAT', 'alamat_db');
     define('DB_SOCKET', '');
-    define('DB_PORT', 3307);
+    define('DB_PORT', $available_port);
+    
+    // Log the detected port for debugging
+    error_log("Docker: Using MySQL port " . $available_port);
+    
 } elseif (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
     // Windows XAMPP configuration
     define('DB_HOST', 'localhost');
@@ -24,7 +50,8 @@ if ($is_docker) {
     define('DB_SOCKET', ''); // Windows uses TCP/IP
     define('DB_PORT', 3306); // XAMPP default port
 } else {
-    // Unix/Linux configuration
+    // Unix/Linux configuration - find available port
+    $available_port = find_available_mysql_port(3306);
     define('DB_HOST', 'localhost');
     define('DB_USER', 'root');
     define('DB_PASS', ''); // Adjust based on your setup
@@ -48,7 +75,10 @@ if ($is_docker) {
     }
     
     define('DB_SOCKET', $socket_found);
-    define('DB_PORT', 3306);
+    define('DB_PORT', $available_port);
+    
+    // Log the detected configuration for debugging
+    error_log("Linux: Using MySQL port " . $available_port . ", socket: " . ($socket_found ?: 'none'));
 }
 
 // Create database connections with TCP support for Docker

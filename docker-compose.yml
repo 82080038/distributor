@@ -20,12 +20,12 @@ services:
       - distributor_network
     restart: unless-stopped
 
-  # Database MariaDB (more reliable than MySQL)
+  # Database MariaDB with dynamic port detection
   mysql:
     image: mariadb:10.6
     container_name: distributor_mysql
     ports:
-      - "3307:3306"
+      - "3307:3306"  # Default, can be changed via port_detector.php
     environment:
       MARIADB_ROOT_PASSWORD: ""
       MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
