@@ -238,3 +238,7 @@ AH00558: apache2: Could not reliably determine the server's fully qualified doma
 [Mon Jan 19 07:53:57.028427 2026] [php7:notice] [pid 21] [client 172.18.0.1:58496] Docker: Attempting MySQL connection to mysql:3306, referer: http://127.0.0.1:45281/login.php
 [Mon Jan 19 07:54:46.328328 2026] [php7:notice] [pid 17] [client 172.18.0.1:39810] Docker: Using MySQL container 'mysql' on internal port 3306, referer: http://127.0.0.1:45281/login.php
 [Mon Jan 19 07:54:46.614262 2026] [php7:notice] [pid 17] [client 172.18.0.1:39810] Docker: Attempting MySQL connection to mysql:3306, referer: http://127.0.0.1:45281/login.php
+[Mon Jan 19 08:02:00.665487 2026] [mpm_prefork:notice] [pid 1] AH00170: caught SIGWINCH, shutting down gracefully
+AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.18.0.4. Set the 'ServerName' directive globally to suppress this message
+[Mon Jan 19 12:19:35.564983 2026] [mpm_prefork:notice] [pid 1] AH00163: Apache/2.4.54 (Debian) PHP/7.4.33 configured -- resuming normal operations
+[Mon Jan 19 12:19:35.565072 2026] [core:notice] [pid 1] AH00094: Command line: 'apache2 -D FOREGROUND'

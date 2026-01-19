@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Dashboard - Sistem Distribusi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-semibold text-gray-900">
+                        <i class="fas fa-users mr-2"></i>CRM Dashboard
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                        <i class="fas fa-plus mr-2"></i>Tambah Customer
+                    </button>
+                    <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                        <i class="fas fa-file-export mr-2"></i>Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Customers -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
+                            <i class="fas fa-users text-white text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Customers</dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="total-customers">1,234</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Customers This Month -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                            <i class="fas fa-user-plus text-white text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">New This Month</dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="new-customers">67</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Customers -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                            <i class="fas fa-user-check text-white text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Active Customers</dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="active-customers">892</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Churn Risk -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-red-500 rounded-md p-3">
+                            <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">High Churn Risk</dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="churn-risk">23</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Customer Registration Trend -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Customer Registration Trend</h3>
+                <div class="h-64">
+                    <canvas id="registrationChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Customer Segmentation -->
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Customer Segmentation</h3>
+                <div class="h-64">
+                    <canvas id="segmentationChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Table -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Customer List</h3>
+                    <div class="flex space-x-2">
+                        <input type="text" placeholder="Search customers..." class="border border-gray-300 rounded-lg px-4 py-2" id="customer-search">
+                        <select class="border border-gray-300 rounded-lg px-4 py-2" id="segment-filter">
+                            <option value="">All Segments</option>
+                            <option value="CHAMPION">Champions</option>
+                            <option value="LOYAL">Loyal</option>
+                            <option value="AT_RISK">At Risk</option>
+                            <option value="LOST">Lost</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Code</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Spent</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Credit Limit</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Available Credit</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Segment</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="customer-table-body">
+                            <!-- Dynamic content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sample data - in real implementation, this would come from API
+        const customerData = {
+            totalCustomers: 1234,
+            newCustomers: 67,
+            activeCustomers: 892,
+            churnRisk: 23,
+            registrationTrend: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                data: [45, 52, 38, 67, 58, 71]
+            },
+            segmentation: {
+                labels: ['Champions', 'Loyal', 'Potential Loyal', 'At Risk', 'Lost'],
+                data: [156, 234, 189, 67, 23]
+            },
+            customers: [
+                {code: 'RT240119001', name: 'PT Maju Jaya', type: 'WHOLESALE', totalSpent: 125000000, creditLimit: 150000000, availableCredit: 25000000, segment: 'LOYAL'},
+                {code: 'RT240119002', name: 'Toko Sejahtera', type: 'RETAIL', totalSpent: 15000000, creditLimit: 10000000, availableCredit: 8500000, segment: 'CHAMPION'},
+                {code: 'RT240119003', name: 'CV Berkah Jaya', type: 'DISTRIBUTOR', totalSpent: 890000000, creditLimit: 1000000000, availableCredit: 110000000, segment: 'AT_RISK'}
+            ]
+        };
+
+        // Update KPI cards
+        document.getElementById('total-customers').textContent = customerData.totalCustomers.toLocaleString('id-ID');
+        document.getElementById('new-customers').textContent = customerData.newCustomers.toLocaleString('id-ID');
+        document.getElementById('active-customers').textContent = customerData.activeCustomers.toLocaleString('id-ID');
+        document.getElementById('churn-risk').textContent = customerData.churnRisk.toLocaleString('id-ID');
+
+        // Registration Trend Chart
+        const registrationCtx = document.getElementById('registrationChart').getContext('2d');
+        new Chart(registrationCtx, {
+            type: 'line',
+            data: {
+                labels: customerData.registrationTrend.labels,
+                datasets: [{
+                    label: 'New Customers',
+                    data: customerData.registrationTrend.data,
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Segmentation Chart
+        const segmentationCtx = document.getElementById('segmentationChart').getContext('2d');
+        new Chart(segmentationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: customerData.segmentation.labels,
+                datasets: [{
+                    data: customerData.segmentation.data,
+                    backgroundColor: [
+                        'rgba(34, 197, 94, 0.8)',
+                        'rgba(34, 197, 94, 0.6)',
+                        'rgba(34, 197, 94, 0.4)',
+                        'rgba(239, 68, 68, 0.6)',
+                        'rgba(239, 68, 68, 0.4)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+
+        // Populate customer table
+        function renderCustomerTable(customers) {
+            const tableBody = document.getElementById('customer-table-body');
+            tableBody.innerHTML = customers.map(customer => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${customer.code}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            ${customer.type}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rp ${customer.totalSpent.toLocaleString('id-ID')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rp ${customer.creditLimit.toLocaleString('id-ID')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rp ${customer.availableCredit.toLocaleString('id-ID')}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getSegmentColorClass(customer.segment)}">
+                            ${customer.segment}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button class="text-indigo-600 hover:text-indigo-900 mr-2" onclick="viewCustomer('${customer.code}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="text-green-600 hover:text-green-900" onclick="editCustomer('${customer.code}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="text-blue-600 hover:text-blue-900" onclick="communicateCustomer('${customer.code}')">
+                            <i class="fas fa-envelope"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getSegmentColorClass(segment) {
+            const colors = {
+                'CHAMPION': 'bg-green-100 text-green-800',
+                'LOYAL': 'bg-blue-100 text-blue-800',
+                'AT_RISK': 'bg-yellow-100 text-yellow-800',
+                'LOST': 'bg-red-100 text-red-800'
+            };
+            return colors[segment] || 'bg-gray-100 text-gray-800';
+        }
+
+        function viewCustomer(code) {
+            alert('View customer: ' + code);
+        }
+
+        function editCustomer(code) {
+            alert('Edit customer: ' + code);
+        }
+
+        function communicateCustomer(code) {
+            alert('Send communication to: ' + code);
+        }
+
+        // Search functionality
+        document.getElementById('customer-search').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredCustomers = customerData.customers.filter(customer => 
+                customer.name.toLowerCase().includes(searchTerm) || 
+                customer.code.toLowerCase().includes(searchTerm)
+            );
+            renderCustomerTable(filteredCustomers);
+        });
+
+        // Segment filter
+        document.getElementById('segment-filter').addEventListener('change', function(e) {
+            const segment = e.target.value;
+            const filteredCustomers = segment ? 
+                customerData.customers.filter(customer => customer.segment === segment) :
+                customerData.customers;
+            renderCustomerTable(filteredCustomers);
+        });
+
+        // Initial render
+        renderCustomerTable(customerData.customers);
+    </script>
+</body>
+</html>
