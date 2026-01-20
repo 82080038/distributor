@@ -1,11 +1,15 @@
 <?php
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'alamat_manager.php';
+
+// Include alamat_manager if exists
+if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . 'alamat_manager.php')) {
+    require_once __DIR__ . DIRECTORY_SEPARATOR . 'alamat_manager.php';
+    setup_alamat_ajax_endpoints();
+}
 
 // Setup AJAX endpoints untuk alamat
-setup_alamat_ajax_endpoints();
-
-if (isset($_GET['alamat_action'])) {
+if (function_exists('setup_alamat_ajax_endpoints')) {
+    if (isset($_GET['alamat_action'])) {
     header('Content-Type: application/json; charset=utf-8');
     $action = $_GET['alamat_action'];
     $data = [];
@@ -62,6 +66,7 @@ if (isset($_GET['alamat_action'])) {
 
     echo json_encode($data);
     exit;
+    }
 }
 
 $error = '';
@@ -398,7 +403,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     </script>
     <script>
-<?php render_alamat_script(''); ?>
+<?php 
+if (function_exists('render_alamat_script')) {
+    render_alamat_script('');
+}
+?>
 </script>
 </body>
 </html>
