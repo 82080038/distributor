@@ -98,20 +98,19 @@ scp schema_*.sql user@server:/path/to/project/
 #### Opsi B: Migration Scripts
 Buat file `migrations/` untuk tracking perubahan schema.
 
-#### Opsi C: Docker (Recommended)
-```dockerfile
-# docker-compose.yml
-version: '3'
-services:
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: ''
-      MYSQL_DATABASE: distributor
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./schema:/docker-entrypoint-initdb.d
+#### Opsi C: Manual Configuration
+```bash
+# Manual setup script
+#!/bin/bash
+# Create databases and users
+mysql -u root -p << EOF
+CREATE DATABASE distributor;
+CREATE DATABASE alamat_db;
+CREATE USER 'distributor_user'@'localhost' IDENTIFIED BY 'your_password';
+GRANT ALL PRIVILEGES ON distributor.* TO 'distributor_user'@'localhost';
+GRANT ALL PRIVILEGES ON alamat_db.* TO 'distributor_user'@'localhost';
+FLUSH PRIVILEGES;
+EOF
 ```
 
 ## Testing Connection

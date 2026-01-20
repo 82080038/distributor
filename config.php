@@ -12,109 +12,27 @@ session_start([
     'use_strict_mode' => true
 ]);
 
-// Check if running in Docker environment
-$is_docker = file_exists('.dockerenv') || (getenv('DOCKER_ENV') === 'true');
+// XAMPAMP Configuration
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', ''); // XAMPAMP default: empty password
+define('DB_NAME', 'distributor');
+define('DB_NAME_ALAMAT', 'alamat_db');
+define('DB_PORT', 3306); // XAMPAMP default port
 
-// Function to find available MySQL port
-function find_available_mysql_port($default_port = 3307) {
-    $ports_to_try = [$default_port, 3306, 3308, 3309, 3310];
-    
-    foreach ($ports_to_try as $port) {
-        $connection = @fsockopen('127.0.0.1', $port, $errno, $errstr, 2);
-        if ($connection) {
-            fclose($connection);
-            // Port is available, but check if it's actually our MySQL
-            $test_conn = @new mysqli('127.0.0.1', 'root', '', 'distributor', $port);
-            if ($test_conn && !$test_conn->connect_error) {
-                $test_conn->close();
-                return $port;
-            }
-        }
-    }
-    
-    // If no port works, return default
-    return $default_port;
-}
-
-// Docker vs Native vs Windows database configuration
-if ($is_docker) {
-    // Docker environment - use fixed port 3307
-    define('DB_HOST', 'mysql');
-    define('DB_USER', 'distributor_user');
-    define('DB_PASS', 'distributor_pass');
-    define('DB_NAME', 'distributor');
-    define('DB_NAME_ALAMAT', 'alamat_db');
-    define('DB_SOCKET', '');
-    define('DB_PORT', 3306); // Internal Docker port
-    
-    // Log the detected configuration for debugging
-    error_log("Docker: Using MySQL container 'mysql' on internal port 3306");
-    
-} elseif (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-    // Windows XAMPP configuration
-    define('DB_HOST', 'localhost');
-    define('DB_USER', 'root');
-    define('DB_PASS', ''); // XAMPP default: empty password
-    define('DB_NAME', 'distributor');
-    define('DB_NAME_ALAMAT', 'alamat_db');
-    define('DB_SOCKET', ''); // Windows uses TCP/IP
-    define('DB_PORT', 3306); // XAMPP default port
-} else {
-    // Unix/Linux configuration - find available port
-    $available_port = find_available_mysql_port(3306);
-    define('DB_HOST', 'localhost');
-    define('DB_USER', 'root');
-    define('DB_PASS', ''); // Adjust based on your setup
-    define('DB_NAME', 'distributor');
-    define('DB_NAME_ALAMAT', 'alamat_db');
-    
-    // Try common socket locations
-    $common_sockets = [
-        '/var/run/mysqld/mysqld.sock',  // Debian/Ubuntu
-        '/var/lib/mysql/mysql.sock',     // CentOS/RHEL/Fedora
-        '/tmp/mysql.sock',               // Alternative
-        '/run/mysqld/mysqld.sock'       // Modern systemd
-    ];
-    
-    $socket_found = '';
-    foreach ($common_sockets as $socket) {
-        if (file_exists($socket)) {
-            $socket_found = $socket;
-            break;
-        }
-    }
-    
-    define('DB_SOCKET', $socket_found);
-    define('DB_PORT', $available_port);
-    
-    // Log the detected configuration for debugging
-    error_log("Linux: Using MySQL port " . $available_port . ", socket: " . ($socket_found ?: 'none'));
-}
-
-// Create database connections with TCP support for Docker
-if ($is_docker) {
-    // Direct TCP connection for Docker
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
-    $conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, DB_PORT);
-    
-    // Log connection attempt for debugging
-    error_log("Docker: Attempting MySQL connection to " . DB_HOST . ":" . DB_PORT);
-    
-} else {
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, null, DB_SOCKET);
-    $conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, null, DB_SOCKET);
-}
+// Create database connections
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
+$conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, DB_PORT);
 
 if ($conn->connect_error) {
     error_log("Database connection failed: " . $conn->connect_error);
-    die('Database connection failed. Please check your configuration.');
+    die('Database connection failed. Please check your XAMPAMP MySQL configuration.');
 }
 $conn->set_charset('utf8mb4');
 
 if ($conn_alamat->connect_error) {
     error_log("Alamat database connection failed: " . $conn_alamat->connect_error);
     // Don't die, just log the error for alamat_db
-    // die('Alamat database connection failed: ' . $conn_alamat->connect_error);
 }
 $conn_alamat->set_charset('utf8mb4');
 

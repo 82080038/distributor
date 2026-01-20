@@ -1,14 +1,4 @@
-# 🐳 Distributor Management System - Docker-Based Cross-Platform Application
-
-## ⚠️ PENTING! Docker Development Pattern
-
-**Aplikasi ini menggunakan Docker containerization untuk cross-platform compatibility.**
-
-### 🎯 **Mengapa Docker?**
-- **Windows = Linux = macOS** (Environment sama persis)
-- **Tidak ada "works on my machine" issues**
-- **Setup sekali, jalan di mana saja**
-- **Focus pada coding, bukan configuration**
+# Distributor Management System - Cross-Platform Application
 
 ## 📋 Overview
 
@@ -70,66 +60,40 @@ render_alamat_form('', $address_values, true, true, true);
 $validation = validate_alamat_data('', true);
 ```
 
-## 🐳 Docker-Based Development
-
-Aplikasi ini dikembangkan dengan **Docker containerization** untuk memastikan konsistensi di semua platform:
-
-### ✅ **Keuntungan Docker:**
-- **Cross-Platform**: Sama persis di Windows, Linux, macOS
-- **Environment Consistent**: Tidak ada "works on my machine" issues
-- **Easy Setup**: Cukup `docker-compose up`
-- **Database Ready**: Otomatis import dari SQL files
-- **Isolated Development**: Tidak mengganggu sistem host
-
 ## 🚀 Quick Start (Cross-Platform)
 
-### **Method 1: One-Click Startup (Recommended)**
-```bash
-# Linux/macOS
-./start.sh
-
-# Windows
-start.bat
-```
-
-### **Method 2: Manual Docker Setup**
-```bash
-# Clone repository
-git clone https://github.com/82080038/distributor.git
-cd distribusi
-
-# Start all containers
-docker-compose up -d --build
-
-# Access application
-# Web: http://localhost:8080
-# Database: http://localhost:8081 (PhpMyAdmin)
-```
-
-### **Method 3: Native Setup (Advanced)**
+### **Method 1: Native Setup (Recommended)**
 ```bash
 # Requirements: PHP 7.4+, MySQL/MariaDB, Apache
 # Import database: mysql -u root -p distributor < db/distribusi.sql
 # Access: http://localhost/distribusi
 ```
 
+### **Method 2: Manual Setup**
+```bash
+# Clone repository
+git clone https://github.com/82080038/distributor.git
+cd distribusi
+
+# Import database
+mysql -u root -p distributor < db/distribusi.sql
+
+# Access application
+# Web: http://localhost/distribusi
+```
+
 ## 🏗️ Architecture
 
-### **Container Structure:**
+### **System Components:**
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Web Server   │    │   Database      │    │   Database UI   │
-│                │    │                │    │                │
-│ PHP 7.4       │    │ MariaDB 10.6   │    │ PhpMyAdmin      │
-│ Apache 2.4     │◄──►│ Port: 3307     │    │ Port: 8081     │
-│ Port: 8080     │    │                │    │                │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌─────────────────┐    ┌─────────────────┐
+│   Web Server   │    │   Database      │
+│                │    │                │
+│ PHP 7.4       │    │ MySQL/MariaDB   │
+│ Apache 2.4     │◄──►│ Port: 3306     │
+│ Port: 80       │    │                │
+└─────────────────┘    └─────────────────┘
 ```
-
-### **Data Persistence:**
-- **Database**: Docker volume `mysql_data`
-- **Application**: Live sync dari folder lokal
-- **Configuration**: Auto-detect environment
 
 ## 🔧 Environment Configuration
 
@@ -138,12 +102,7 @@ Aplikasi otomatis mendeteksi environment:
 
 ```php
 // config.php - Auto Detection
-if ($is_docker) {
-    // Docker Environment
-    DB_HOST = 'mysql'
-    DB_PORT = 3307
-    DB_USER = 'distributor_user'
-} elseif (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
     // Windows XAMPP
     DB_HOST = 'localhost'
     DB_PORT = 3306
@@ -162,68 +121,30 @@ if ($is_docker) {
 ```
 distribusi/
 ├── 📄 README.md                 # Dokumentasi ini
-├── 🐳 docker-compose.yml        # Container orchestration
-├── 🐳 Dockerfile               # Web server build
 ├── ⚙️ config.php              # Auto-detect config
 ├── 📊 db/                     # Database schemas
 │   ├── distribusi.sql          # Main database
 │   ├── distributor.sql        # Alternative schema
 │   └── alamat_db.sql          # Alamat database
-├── 🗃️ mysql-init/              # Database init scripts
 ├── 📝 catatan/                # Notes & parsers
 ├── 🌐 *.php                   # Application files
 ├── 📱 app.js                  # Frontend JavaScript
 ├── 🏠 alamat_manager.php       # Alamat manager system
 ├── 🏠 alamat_crud.php          # CRUD alamat
-├── 📚 *.md                    # Documentation
-└── 🚀 start.sh / start.bat     # Startup scripts
+└── 📚 *.md                    # Documentation
 ```
 
 ## 💻 Development Workflow
 
-### **1. Development di Docker (Recommended)**
+### **1. Native Development (Recommended)**
 ```bash
-# Start containers
-docker-compose up -d
-
-# Edit kode lokal (auto-sync ke container)
-# Akses: http://localhost:8080
-
-# View logs
-docker-compose logs -f web
-```
-
-### **2. Development Native (Alternative)**
-
-#### **Windows dengan XAMPP:**
-```bash
-# Stop Docker
-docker-compose down
-
-# Start XAMPP
-# Akses: http://localhost/distribusi
-```
-
-#### **Linux dengan Native MySQL:**
-```bash
-# Stop Docker  
-docker-compose down
-
-# Start MySQL native
-sudo systemctl start mysql
-
-# Import database (jika perlu)
-mysql -u root -p distributor < db/distribusi.sql
-
+# Start web server (Apache/Nginx)
+# Start MySQL service
+# Edit kode lokal
 # Akses: http://localhost/distribusi
 ```
 
 ## 🗄️ Database Setup
-
-### **Docker (Otomatis):**
-- **Database 1**: `distributor` (di-import dari `db/distribusi.sql`)
-- **Database 2**: `alamat_db` (dibuat kosong)
-- **Access**: PhpMyAdmin di http://localhost:8081
 
 ### **Native Setup:**
 ```sql
@@ -246,29 +167,10 @@ AFTER postal_code;
 ### **Port Conflicts:**
 ```bash
 # Cek port yang digunakan
-ss -tlnp | grep :3306
+netstat -tlnp | grep :3306
 
-# Ganti port di docker-compose.yml
-ports:
-  - "3307:3306"  # Gunakan port lain
-```
-
-### **Container Issues:**
-```bash
-# Lihat semua containers
-docker-compose ps
-
-# Restart container
-docker-compose restart web
-
-# Lihat logs
-docker-compose logs web
-```
-
-### **Database Connection:**
-```bash
-# Test koneksi database
-docker exec web php -r "require_once 'config.php'; echo 'Connection: ' . (\$conn->connect_error ? 'FAILED' : 'OK');"
+# Edit config.php untuk port berbeda
+define('DB_PORT', 3307);
 ```
 
 ### **JavaScript Errors:**
@@ -280,24 +182,12 @@ docker exec web php -r "require_once 'config.php'; echo 'Connection: ' . (\$conn
 
 ## 🌐 Access Information
 
-### **Docker Environment:**
-- **Aplikasi**: http://localhost:8080
-- **PhpMyAdmin**: http://localhost:8081
-  - Server: mysql
-  - Username: root
-  - Password: (kosong)
-
 ### **Native Environment:**
 - **Windows (XAMPP)**: http://localhost/distribusi
 - **Linux**: http://localhost/distribusi
 - **Database**: localhost:3306 (root/empty password)
 
 ## 🔧 System Requirements
-
-### **Docker (Recommended):**
-- Docker Desktop (Windows/Mac) atau Docker Engine (Linux)
-- 4GB RAM minimum
-- 2GB disk space
 
 ### **Native Setup:**
 - PHP 7.4+ dengan ekstensi: mysqli, gd, zip, mbstring
@@ -361,24 +251,15 @@ docker exec web php -r "require_once 'config.php'; echo 'Connection: ' . (\$conn
 - **Chart.js** - Data visualization (optional)
 
 ### **DevOps:**
-- **Docker & Docker Compose** - Containerization
 - **Git** - Version control
-- **PhpMyAdmin** - Database management
 
 ## 🚀 Deployment
 
 ### **Development:**
 ```bash
-docker-compose up -d --build
-```
-
-### **Production:**
-```bash
-# Build production image
-docker build -t distributor:prod .
-
-# Run with production settings
-docker run -d -p 80:80 distributor:prod
+# Setup local web server and database
+# Import database schema
+# Configure config.php for your environment
 ```
 
 ## 📝 Development Guidelines
@@ -408,7 +289,7 @@ git push origin feature/new-module
 1. **Fork** repository
 2. **Create** feature branch
 3. **Develop** dengan standards
-4. **Test** di Docker environment
+4. **Test** di XAMPAMP environment
 5. **Submit** pull request
 
 ## 📄 License
@@ -417,10 +298,10 @@ git push origin feature/new-module
 
 ## 📞 Support
 
-- **Documentation**: Lihat file `DOCKER_SETUP.md`
+- **Documentation**: Lihat file README ini
 - **Issues**: Report via GitHub Issues
-- **Database Setup**: Lihat `DATABASE_SETUP.md`
-- **Alamat System**: Lihat `ALAMAT_MANAGER_GUIDE.md`
+- **Database Setup**: Lihat schema files di folder `db/`
+- **Alamat System**: Lihat `alamat_manager.php`
 
 ---
 
@@ -431,46 +312,33 @@ git push origin feature/new-module
 git clone https://github.com/82080038/distributor.git
 cd distribusi
 
-# 2. One-Click Startup
-# Linux/macOS:
-./start.sh
+# 2. Setup database
+mysql -u root -p -e "CREATE DATABASE distributor; CREATE DATABASE alamat_db;"
+mysql -u root -p distributor < db/distribusi.sql
 
-# Windows:
-start.bat
+# 3. Configure web server
+# Point Apache/Nginx to this folder
+# Access: http://localhost/distribusi
 
-# 3. Wait 1-2 minutes
-# Database otomatis di-import
-
-# 4. Akses aplikasi
-# Web: http://localhost:8080
-# DB: http://localhost:8081
-
-# 5. Selesai! Ready untuk development
+# 4. Selesai! Ready untuk development
 ```
 
 ## 📁 Project Structure
 
 ```
 distribusi/
-├── 🚀 start.sh                # Linux/macOS startup script
-├── 🚀 start.bat               # Windows startup script
-├── 🐳 docker-compose.yml      # Container orchestration
-├── 🐳 Dockerfile               # Web server build
 ├── ⚙️ config.php              # Auto-detect config
-├── 📊 composer.json           # PHP dependencies
-├── 🚫 .gitignore              # Git ignore file
+├──  .gitignore              # Git ignore file
 ├── 📊 db/                     # Database schemas
 │   ├── distribusi.sql          # Main database
 │   ├── distributor.sql        # Alternative schema
 │   └── alamat_db.sql          # Alamat database
-├── 🗃️ mysql-init/              # Database init scripts
 ├── 📝 catatan/                # Notes & parsers
 ├── 🌐 *.php                   # Application files
 ├── 📱 app.js                  # Frontend JavaScript
 ├── 🏠 alamat_manager.php       # Alamat manager system
 ├── 🏠 alamat_crud.php          # CRUD alamat
-├── 📚 *.md                    # Documentation
-└── 🚀 start.sh / start.bat     # Startup scripts
+└── 📚 *.md                    # Documentation
 ```
 
 ## 🆕 **Changelog & Updates**
@@ -484,9 +352,8 @@ distribusi/
 - ✅ **Database Migration** - Field tipe_alamat untuk orang table
 
 ### **Version 1.0.0 - Base System**
-- ✅ **Docker Integration** - Cross-platform development
 - ✅ **Core Modules** - Products, Customers, Orders, Purchases
 - ✅ **User Management** - Role-based access control
 - ✅ **Reporting System** - Laporan dan analisis
 
-**🎉 Aplikasi siap digunakan di Windows, Linux, macOS, atau OS apapun dengan Docker!**
+**🎉 Aplikasi siap digunakan di Windows, Linux, atau OS apapun dengan web server dan MySQL!**

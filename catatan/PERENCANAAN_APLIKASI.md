@@ -1212,7 +1212,6 @@ class PerformanceMonitor
 
 **Infrastructure:**
 - **Cloud:** AWS / Google Cloud
-- **Container:** Docker
 - **CI/CD:** GitHub Actions
 - **Monitoring:** Prometheus + Grafana
 
@@ -2850,7 +2849,7 @@ AuditLogs: id, user_id, action, table_name, record_id,
 - **Web Apps:** PHP 8.1+ + Laravel 10.x + MySQL 8.0+ + Redis
 - **Frontend:** Bootstrap 5.x + jQuery 3.x + Tailwind CSS + Alpine.js
 - **API Backend:** Laravel 10 + MySQL + Redis + External AI Server (Python)
-- **Infrastructure:** Docker + Nginx + PHP-FPM
+- **Infrastructure:** Nginx + PHP-FPM
 
 #### **Phase 1: Laravel Backend + Web Admin (Bulan 1-3)**
 **Development Focus:**
@@ -3281,22 +3280,6 @@ class ApiIntegrationTest extends TestCase
 - Marketing & launch
 - Support system setup
 
-**Deployment Configuration:**
-```yaml
-# docker-compose.yml
-version: '3.8'
-
-services:
-  # Laravel API Backend
-  api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    environment:
-      - DB_HOST=mysql
-      - REDIS_HOST=redis
       - AI_SERVER_URL=http://ai-server:8000
     depends_on:
       - mysql
@@ -3422,10 +3405,8 @@ volumes:
     }
   },
   "infrastructure": {
-    "containerization": "Docker",
     "web_server": "Nginx",
-    "process_manager": "PHP-FPM",
-    "deployment": "Docker Compose"
+    "process_manager": "PHP-FPM"
   }
 }
 ```
@@ -3497,7 +3478,6 @@ volumes:
 - MySQL Community Edition (FREE)
 - PostgreSQL (FREE)
 - Redis (FREE)
-- Docker Community Edition (FREE)
 
 **Frontend (FREE):**
 - Laravel Blade (Built-in)
@@ -3520,7 +3500,7 @@ FREE STACK:
 ├── Mobile: PWA (FREE)
 ├── Database: MySQL + PostgreSQL (FREE)
 ├── Hosting: VPS $5/bulan atau GitHub Pages (FREE)
-└── Tools: Git + VS Code + Docker (FREE)
+└── Tools: Git + VS Code (FREE)
 ```
 
 #### 12.2.3 Cost Comparison
@@ -3572,7 +3552,6 @@ composer require intervention/image
 **Development Tools (FREE):**
 - VS Code (FREE)
 - Git/GitHub (FREE)
-- Docker Community (FREE)
 - Postman (FREE)
 - Chrome DevTools (FREE)
 
@@ -4574,7 +4553,7 @@ class SecurityService
 #### 12.4.6 Cloud-Native & Microservices Architecture
 **Microservices Design:**
 ```yaml
-# docker-compose.microservices.yml
+# microservices.yml
 version: '3.8'
 services:
   # API Gateway
@@ -4639,7 +4618,6 @@ services:
 
   # Search Engine
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"

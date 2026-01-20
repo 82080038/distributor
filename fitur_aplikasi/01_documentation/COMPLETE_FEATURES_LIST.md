@@ -128,7 +128,6 @@
 - **MySQL 8.0+** - Database dengan optimasi
 - **Bootstrap 5** - UI framework responsif
 - **jQuery** - JavaScript library
-- **Composer** - Dependency management
 
 ---
 

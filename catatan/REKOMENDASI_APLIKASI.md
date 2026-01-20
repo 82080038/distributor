@@ -186,7 +186,7 @@
 
 **Infrastructure:**
 - **Cloud:** AWS atau Google Cloud Indonesia
-- **Deployment:** Docker containers dengan Kubernetes
+- **Deployment:** Direct server deployment
 - **CDN:** CloudFlare atau AWS CloudFront
 - **Monitoring:** Prometheus + Grafana
 

@@ -158,7 +158,7 @@ CREATE TABLE accounts_payable (
 
 ## **Medium Term (3-6 bulan):**
 1. **Inventory Valuation Methods** - Proper costing
-2. **Supplier Performance** - Better vendor management
+2. **Supplier Performance** - Better supplier management
 3. **Budget Control** - Financial discipline
 4. **Mobile Access** - User convenience
 

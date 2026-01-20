@@ -72,7 +72,6 @@ fitur_aplikasi/
 - **Firebase** untuk push notifications
 
 ### **Infrastructure:**
-- **Docker** untuk containerization
 - **Nginx** untuk web server
 - **AWS/Google Cloud** untuk hosting
 - **GitLab CI/CD** untuk deployment
