@@ -38,6 +38,12 @@ services:
     networks:
       - distributor_network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MARIADB_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # PhpMyAdmin (Optional - untuk database management)
   phpmyadmin:
