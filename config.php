@@ -12,13 +12,13 @@ session_start([
     'use_strict_mode' => true
 ]);
 
-// XAMPAMP Configuration
+// Traditional PHP/MySQL Configuration for phpMyAdmin
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
-define('DB_PASS', ''); // XAMPAMP default: empty password
+define('DB_PASS', '8208'); // Update with your phpMyAdmin MySQL password
 define('DB_NAME', 'distributor');
 define('DB_NAME_ALAMAT', 'alamat_db');
-define('DB_PORT', 3306); // XAMPAMP default port
+define('DB_PORT', 3306); // Standard MySQL port
 
 // Create database connections
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
@@ -26,7 +26,7 @@ $conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, DB_PORT);
 
 if ($conn->connect_error) {
     error_log("Database connection failed: " . $conn->connect_error);
-    die('Database connection failed. Please check your XAMPAMP MySQL configuration.');
+    die('Database connection failed. Please check your phpMyAdmin MySQL configuration.');
 }
 $conn->set_charset('utf8mb4');
 

@@ -23,7 +23,8 @@ echo "<h3>Importing schema files...</h3>";
 $schema_files = [
     'schema_core.sql',
     'schema_migration_orang_user.sql', 
-    'schema_migration_purchases.sql'
+    'schema_migration_purchases.sql',
+    'db/distributor.sql'
 ];
 
 foreach ($schema_files as $file) {
