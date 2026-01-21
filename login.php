@@ -1,4 +1,13 @@
 <?php
+// Start output buffering to prevent any accidental output
+ob_start();
+
+// Set headers to prevent caching
+header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+header('Pragma: no-cache');
+header('Expires: Thu, 19 Nov 1981 08:52:00 GMT');
+
+session_start();
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'auth.php';
 
 if (is_logged_in()) {
@@ -15,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Form login belum lengkap. Silakan isi Username dan Password.';
     } else {
         $sql = "SELECT u.id_user, u.username, o.nama_lengkap, o.perusahaan_id, u.password_hash, u.branch_id, r.name AS role_name 
-                FROM user u 
+                FROM user_accounts u 
                 JOIN orang o ON u.id_orang = o.id_orang 
                 JOIN roles r ON u.role_id = r.id 
                 WHERE u.username = ? AND u.status_aktif = 1
@@ -28,66 +37,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($row = $result->fetch_assoc()) {
                 if (password_verify($password, $row['password_hash'])) {
                     $user_id = (int)$row['id_user'];
-                    $branch_id = isset($row['branch_id']) ? (int)$row['branch_id'] : 0;
                     $perusahaan_id = isset($row['perusahaan_id']) ? (int)$row['perusahaan_id'] : 0;
 
-                    if ($branch_id <= 0) {
-                        if ($perusahaan_id > 0) {
-                            $stmtBranch = $conn->prepare("SELECT id FROM branches WHERE perusahaan_id = ? ORDER BY id ASC LIMIT 1");
-                            if ($stmtBranch) {
-                                $stmtBranch->bind_param('i', $perusahaan_id);
-                                $stmtBranch->execute();
-                                $resBranch = $stmtBranch->get_result();
-                                if ($resBranch && ($rowBranch = $resBranch->fetch_assoc())) {
-                                    $branch_id = (int)$rowBranch['id'];
-                                }
-                                $stmtBranch->close();
+                    // Get company info directly without branches
+                    if ($perusahaan_id > 0) {
+                        $stmtPerusahaan = $conn->prepare("SELECT nama_perusahaan, alamat, kontak FROM perusahaan WHERE id_perusahaan = ? LIMIT 1");
+                        if ($stmtPerusahaan) {
+                            $stmtPerusahaan->bind_param('i', $perusahaan_id);
+                            $stmtPerusahaan->execute();
+                            $resPerusahaan = $stmtPerusahaan->get_result();
+                            if ($resPerusahaan && ($rowPerusahaan = $resPerusahaan->fetch_assoc())) {
+                                $nama_perusahaan = $rowPerusahaan['nama_perusahaan'];
+                                $alamat_perusahaan = $rowPerusahaan['alamat'];
+                                $kontak_perusahaan = $rowPerusahaan['kontak'];
+                            } else {
+                                $nama_perusahaan = '';
+                                $alamat_perusahaan = '';
+                                $kontak_perusahaan = '';
                             }
-
-                            if ($branch_id <= 0) {
-                                $stmtPerusahaan = $conn->prepare("SELECT nama_perusahaan, alamat, kontak FROM perusahaan WHERE id_perusahaan = ? LIMIT 1");
-                                if ($stmtPerusahaan) {
-                                    $stmtPerusahaan->bind_param('i', $perusahaan_id);
-                                    $stmtPerusahaan->execute();
-                                    $resPerusahaan = $stmtPerusahaan->get_result();
-                                    if ($resPerusahaan && ($rowPerusahaan = $resPerusahaan->fetch_assoc())) {
-                                        $nama_perusahaan = $rowPerusahaan['nama_perusahaan'];
-                                        $alamat_perusahaan = $rowPerusahaan['alamat'];
-                                        $kontak_perusahaan = $rowPerusahaan['kontak'];
-                                    } else {
-                                        $nama_perusahaan = '';
-                                        $alamat_perusahaan = '';
-                                        $kontak_perusahaan = '';
-                                    }
-                                    $stmtPerusahaan->close();
-                                } else {
-                                    $nama_perusahaan = '';
-                                    $alamat_perusahaan = '';
-                                    $kontak_perusahaan = '';
-                                }
-
-                                $branch_code = 'CBG' . $perusahaan_id . '001';
-                                $branch_name = $nama_perusahaan !== '' ? $nama_perusahaan : 'Cabang Utama';
-
-                                $stmtInsertBranch = $conn->prepare("INSERT INTO branches (perusahaan_id, code, name, phone, street_address, postal_code, owner_id) VALUES (?, ?, ?, ?, ?, '', ?)");
-                                if ($stmtInsertBranch) {
-                                    $stmtInsertBranch->bind_param('issssi', $perusahaan_id, $branch_code, $branch_name, $kontak_perusahaan, $alamat_perusahaan, $user_id);
-                                    if ($stmtInsertBranch->execute()) {
-                                        $branch_id = (int)$conn->insert_id;
-                                    }
-                                    $stmtInsertBranch->close();
-                                }
-                            }
-
-                            if ($branch_id > 0) {
-                                $updateBranchSql = "UPDATE user SET branch_id = ? WHERE id_user = ?";
-                                $stmtUpdateBranch = $conn->prepare($updateBranchSql);
-                                if ($stmtUpdateBranch) {
-                                    $stmtUpdateBranch->bind_param('ii', $branch_id, $user_id);
-                                    $stmtUpdateBranch->execute();
-                                    $stmtUpdateBranch->close();
-                                }
-                            }
+                            $stmtPerusahaan->close();
+                        } else {
+                            $nama_perusahaan = '';
+                            $alamat_perusahaan = '';
+                            $kontak_perusahaan = '';
                         }
                     }
 
@@ -95,9 +67,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['username'] = $row['username'];
                     $_SESSION['name'] = $row['nama_lengkap'];
                     $_SESSION['role'] = $row['role_name'];
-                    $_SESSION['branch_id'] = $branch_id > 0 ? $branch_id : null;
+                    $_SESSION['branch_id'] = null; // No branches table available
 
-                    $update_sql = "UPDATE user SET last_login_at = NOW() WHERE id_user = ?";
+                    $update_sql = "UPDATE user_accounts SET last_login_at = NOW() WHERE id_user = ?";
                     $stmt_update = $conn->prepare($update_sql);
                     if ($stmt_update) {
                         $stmt_update->bind_param('i', $_SESSION['user_id']);

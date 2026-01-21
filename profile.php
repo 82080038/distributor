@@ -181,7 +181,7 @@ if ($user && isset($user['id'])) {
                    p.nama_perusahaan AS perusahaan_nama,
                    p.alamat AS perusahaan_alamat,
                    p.kontak AS perusahaan_kontak
-            FROM user u
+            FROM user_accounts u
             JOIN orang o ON u.id_orang = o.id_orang
             JOIN roles r ON u.role_id = r.id
             LEFT JOIN perusahaan p ON o.perusahaan_id = p.id_perusahaan

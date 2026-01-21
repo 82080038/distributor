@@ -1,10 +1,42 @@
 <?php
-// Error reporting configuration
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Don't display errors in production
-ini_set('log_errors', 1); // Log errors to file
+// Cross-Platform Configuration for Distributor Application
+// Compatible with Windows (XAMPP) and Linux environments
+
+// Environment Detection
+function is_development() {
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    return in_array($host, ['localhost', '127.0.0.1', '::1', 'distributor.local']);
+}
+
+function is_windows() {
+    return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+}
+
+function is_xampp() {
+    return is_windows() && (
+        file_exists('C:/xampp') || 
+        file_exists('D:/xampp') || 
+        file_exists('E:/xampp')
+    );
+}
+
+// Environment-specific error reporting
+if (is_development()) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+}
+ini_set('log_errors', 1);
 ini_set('error_log', __DIR__ . '/logs/php_errors.log');
 
+// Ensure logs directory exists
+if (!is_dir(__DIR__ . '/logs')) {
+    mkdir(__DIR__ . '/logs', 0755, true);
+}
+
+// Secure session configuration
 session_start([
     'cookie_httponly' => true,
     'cookie_secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
@@ -12,32 +44,64 @@ session_start([
     'use_strict_mode' => true
 ]);
 
-// Traditional PHP/MySQL Configuration for phpMyAdmin
+// Database Configuration with Cross-Platform Support
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '8208'); // Update with your phpMyAdmin MySQL password
 define('DB_NAME', 'distributor');
 define('DB_NAME_ALAMAT', 'alamat_db');
-define('DB_PORT', 3306); // Standard MySQL port
+define('DB_PORT', 3306);
 
-// Create database connections
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
-$conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, DB_PORT);
-
-if ($conn->connect_error) {
-    error_log("Database connection failed: " . $conn->connect_error);
-    die('Database connection failed. Please check your phpMyAdmin MySQL configuration.');
+// Cross-platform password detection
+if (is_development()) {
+    if (is_xampp()) {
+        // XAMPP default password is usually empty
+        define('DB_USER', 'root');
+        define('DB_PASS', ''); // XAMPP default
+    } else {
+        // Linux development
+        define('DB_USER', 'root');
+        define('DB_PASS', '8208'); // Linux dev password
+    }
+} else {
+    // Production - use environment variables or secure config
+    define('DB_USER', $_ENV['DB_USER'] ?? 'root');
+    define('DB_PASS', $_ENV['DB_PASS'] ?? 'secure_password_here');
 }
-$conn->set_charset('utf8mb4');
 
-if ($conn_alamat->connect_error) {
-    error_log("Alamat database connection failed: " . $conn_alamat->connect_error);
-    // Don't die, just log the error for alamat_db
+// Database Connection with Universal Error Handling
+try {
+    // Main database connection
+    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
+    if ($conn->connect_error) {
+        throw new Exception("Main database connection failed: " . $conn->connect_error);
+    }
+    $conn->set_charset('utf8mb4');
+    
+    // Alamat database connection (non-critical)
+    $conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, DB_PORT);
+    if ($conn_alamat->connect_error) {
+        error_log("Alamat database connection failed: " . $conn_alamat->connect_error);
+        $conn_alamat = null; // Set to null if failed, but don't die
+    } else {
+        $conn_alamat->set_charset('utf8mb4');
+    }
+    
+} catch (Exception $e) {
+    // Log error and show user-friendly message
+    error_log("Database Error: " . $e->getMessage());
+    
+    if (is_development()) {
+        die('Database Error: ' . $e->getMessage() . 
+            '<br><br>Platform: ' . PHP_OS . 
+            '<br>XAMPP Detected: ' . (is_xampp() ? 'Yes' : 'No') .
+            '<br>DB_USER: ' . DB_USER .
+            '<br>DB_HOST: ' . DB_HOST . ':' . DB_PORT);
+    } else {
+        die('Database connection failed. Please contact system administrator.');
+    }
 }
-$conn_alamat->set_charset('utf8mb4');
 
-function clean($value)
-{
+// Security and Utility Functions
+function clean($value) {
     if ($value === null) {
         return '';
     }
@@ -47,7 +111,6 @@ function clean($value)
     return htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
-// Function to validate and sanitize input
 function validate_input($data, $type = 'string') {
     if ($data === null) {
         return null;
@@ -80,23 +143,13 @@ function verify_csrf_token($token) {
     return hash_equals($_SESSION['csrf_token'], $token);
 }
 
-function redirect($url)
-{
-    // Clear any existing output buffer
-    while (ob_get_level()) {
-        ob_end_clean();
-    }
-    
-    // Set proper headers to prevent caching and ensure redirect
-    header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-    header('Pragma: no-cache');
-    header('Expires: Thu, 19 Nov 1981 08:52:00 GMT');
-    header('Location: ' . $url, true, 302);
+function redirect($url) {
+    header('Location: ' . $url);
     exit();
 }
 
-function format_date_id($date)
-{
+// Date Functions (Indonesian Format)
+function format_date_id($date) {
     if ($date === null || $date === '') {
         return '';
     }
@@ -108,8 +161,7 @@ function format_date_id($date)
     return $dt->format('d-m-Y');
 }
 
-function parse_date_id_to_db($value)
-{
+function parse_date_id_to_db($value) {
     if ($value === null) {
         return '';
     }
@@ -133,8 +185,8 @@ function parse_date_id_to_db($value)
     return $value;
 }
 
-function number_to_indonesian_words($value)
-{
+// Currency Functions (Indonesian Rupiah)
+function number_to_indonesian_words($value) {
     $num = (float)$value;
     if (!is_finite($num)) {
         return '';
@@ -147,8 +199,7 @@ function number_to_indonesian_words($value)
     return trim($words) . ' Rupiah';
 }
 
-function angka_to_kata_id($x)
-{
+function angka_to_kata_id($x) {
     $units = [
         '',
         'Satu',
@@ -213,7 +264,7 @@ function angka_to_kata_id($x)
     }
     if ($x < 1000000000000) {
         $billions = (int)floor($x / 1000000000);
-        $restBillion = $x % 1000000000;
+        $restBillion = $x % 1000000;
         $str = angka_to_kata_id($billions) . ' Miliar';
         if ($restBillion > 0) {
             $str .= ' ' . angka_to_kata_id($restBillion);
@@ -229,3 +280,19 @@ function angka_to_kata_id($x)
     return $str;
 }
 
+// Debug Information (Development Only)
+if (is_development()) {
+    error_log("=== DEBUG INFO ===");
+    error_log("PHP OS: " . PHP_OS);
+    error_log("Windows: " . (is_windows() ? 'Yes' : 'No'));
+    error_log("XAMPP: " . (is_xampp() ? 'Yes' : 'No'));
+    error_log("Environment: " . (is_development() ? 'Development' : 'Production'));
+    error_log("DB_HOST: " . DB_HOST);
+    error_log("DB_USER: " . DB_USER);
+    error_log("DB_NAME: " . DB_NAME);
+    error_log("Main DB Connection: " . ($conn->ping() ? 'OK' : 'FAILED'));
+    error_log("Alamat DB Connection: " . ($conn_alamat ? ($conn_alamat->ping() ? 'OK' : 'FAILED') : 'NOT CONNECTED'));
+    error_log("================");
+}
+
+?>

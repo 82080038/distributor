@@ -565,7 +565,7 @@ if (!defined('ALAMAT_HELPER_LOADED')) {
                                o.alamat as street_address, o.tipe_alamat, o.postal_code,
                                p.name as province_name, r.name as regency_name, 
                                d.name as district_name, v.name as village_name
-                        FROM user u
+                        FROM user_accounts u
                         JOIN orang o ON u.id_orang = o.id_orang
                         LEFT JOIN alamat_db.provinces p ON o.province_id = p.id
                         LEFT JOIN alamat_db.regencies r ON o.regency_id = r.id

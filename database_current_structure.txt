@@ -1,0 +1,226 @@
+Info
+=== CURRENT DATABASE STRUCTURE ===
+Tables_in_distributor
+districts
+members
+orang
+perusahaan
+plu_codes
+provinces
+regencies
+roles
+sppg_daily_material_demand
+sppg_material_ai_products
+sppg_material_plu_mappings
+sppg_materials
+sppg_menu_items
+sppg_menu_logs
+sppg_menus
+transaction_items
+transactions
+user_accounts
+v_full_address
+v_sppg_material_demand_monthly
+v_sppg_material_demand_weekly
+v_sppg_material_plu_nutrition
+villages
+
+
+Info
+=== TABLE SCHEMAS ===
+Table	Column	Type	Nullable	Key	Default
+districts	id	int	NO	PRI	NULL
+districts	regency_id	int	NO	MUL	NULL
+districts	name	varchar	NO	MUL	NULL
+districts	code	varchar	NO	UNI	NULL
+districts	created_at	timestamp	YES		current_timestamp()
+districts	updated_at	timestamp	YES		current_timestamp()
+members	id	bigint	NO	PRI	NULL
+members	owner_id	bigint	NO	MUL	NULL
+members	name	varchar	NO		NULL
+members	position	varchar	YES		NULL
+members	phone	varchar	YES		NULL
+members	email	varchar	YES		NULL
+members	is_active	tinyint	YES		1
+members	created_at	timestamp	YES		current_timestamp()
+members	updated_at	timestamp	YES		current_timestamp()
+orang	id_orang	int	NO	PRI	NULL
+orang	perusahaan_id	int	YES	MUL	NULL
+orang	nama_lengkap	varchar	NO		NULL
+orang	alamat	text	YES		NULL
+orang	kontak	varchar	YES		NULL
+orang	province_id	int	YES		NULL
+orang	regency_id	int	YES		NULL
+orang	district_id	int	YES		NULL
+orang	village_id	int	YES		NULL
+orang	postal_code	varchar	YES		NULL
+orang	tipe_alamat	enum	YES	MUL	NULL
+orang	is_supplier	tinyint	NO		0
+orang	is_customer	tinyint	NO		0
+orang	is_active	tinyint	NO		1
+orang	created_at	datetime	NO		current_timestamp()
+orang	updated_at	datetime	YES		NULL
+perusahaan	id_perusahaan	int	NO	PRI	NULL
+perusahaan	nama_perusahaan	varchar	NO		NULL
+perusahaan	alamat	text	YES		NULL
+perusahaan	kontak	varchar	YES		NULL
+perusahaan	created_at	datetime	NO		current_timestamp()
+perusahaan	updated_at	datetime	YES		NULL
+plu_codes	id	bigint	NO	PRI	NULL
+plu_codes	plu_number	varchar	NO	UNI	NULL
+plu_codes	product_name	varchar	NO	MUL	NULL
+plu_codes	scientific_name	varchar	YES		NULL
+plu_codes	category	varchar	NO	MUL	NULL
+plu_codes	subcategory	varchar	YES	MUL	NULL
+plu_codes	variety	varchar	YES	MUL	NULL
+plu_codes	size_grade	varchar	YES		NULL
+plu_codes	description	text	YES		NULL
+plu_codes	commodity_code	varchar	YES		NULL
+plu_codes	is_organic	tinyint	YES		0
+plu_codes	is_conventional	tinyint	YES		1
+plu_codes	is_gmo	tinyint	YES		0
+plu_codes	standard_unit	varchar	YES		'KG'
+plu_codes	country_origin	varchar	YES	MUL	NULL
+plu_codes	seasonality	longtext	YES		NULL
+plu_codes	storage_requirements	longtext	YES		NULL
+plu_codes	shelf_life_days	int	YES		NULL
+plu_codes	nutrition_info	longtext	YES		NULL
+plu_codes	allergen_info	longtext	YES		NULL
+plu_codes	certification	longtext	YES		NULL
+plu_codes	is_active	tinyint	YES	MUL	1
+plu_codes	effective_date	date	YES		NULL
+plu_codes	expiry_date	date	YES		NULL
+plu_codes	created_at	timestamp	YES		current_timestamp()
+plu_codes	updated_at	timestamp	YES		current_timestamp()
+provinces	id	int	NO	PRI	NULL
+provinces	name	varchar	NO	MUL	NULL
+provinces	code	varchar	NO	UNI	NULL
+provinces	created_at	timestamp	YES		current_timestamp()
+provinces	updated_at	timestamp	YES		current_timestamp()
+regencies	id	int	NO	PRI	NULL
+regencies	province_id	int	NO	MUL	NULL
+regencies	name	varchar	NO	MUL	NULL
+regencies	code	varchar	NO	UNI	NULL
+regencies	created_at	timestamp	YES		current_timestamp()
+regencies	updated_at	timestamp	YES		current_timestamp()
+roles	id	int	NO	PRI	NULL
+roles	name	varchar	NO	UNI	NULL
+sppg_daily_material_demand	id	bigint	NO	PRI	NULL
+sppg_daily_material_demand	sppg_id	varchar	NO	MUL	NULL
+sppg_daily_material_demand	demand_date	date	NO		NULL
+sppg_daily_material_demand	material_code	varchar	NO	MUL	NULL
+sppg_daily_material_demand	target_group	enum	NO		NULL
+sppg_daily_material_demand	beneficiaries_count	int	NO		NULL
+sppg_daily_material_demand	total_quantity_grams	decimal	NO		NULL
+sppg_daily_material_demand	created_at	timestamp	YES		current_timestamp()
+sppg_daily_material_demand	updated_at	timestamp	YES		current_timestamp()
+sppg_materials	id	bigint	NO	PRI	NULL
+sppg_materials	material_code	varchar	NO	UNI	NULL
+sppg_materials	material_name	varchar	NO		NULL
+sppg_materials	category	enum	NO		NULL
+sppg_materials	subcategory	varchar	NO		NULL
+sppg_materials	brand	varchar	YES		NULL
+sppg_materials	unit	varchar	NO		NULL
+sppg_materials	package_size	varchar	NO		NULL
+sppg_materials	shelf_life_months	int	NO		NULL
+sppg_materials	supplier_id	bigint	YES		NULL
+sppg_materials	is_active	tinyint	YES	MUL	1
+sppg_materials	created_at	timestamp	YES		current_timestamp()
+sppg_materials	updated_at	timestamp	YES		current_timestamp()
+sppg_materials	protein_per_100g	decimal	YES		NULL
+sppg_materials	carb_per_100g	decimal	YES		NULL
+sppg_materials	fat_per_100g	decimal	YES		NULL
+sppg_materials	fiber_per_100g	decimal	YES		NULL
+sppg_materials	calories_per_100g	int	YES		NULL
+sppg_materials	vitamin_a_mcg	int	YES		NULL
+sppg_materials	vitamin_c_mcg	int	YES		NULL
+sppg_materials	iron_mcg	decimal	YES		NULL
+sppg_materials	calcium_mcg	decimal	YES		NULL
+sppg_material_ai_products	id	bigint	NO	PRI	NULL
+sppg_material_ai_products	material_code	varchar	NO	MUL	NULL
+sppg_material_ai_products	ai_product_id	varchar	NO	MUL	NULL
+sppg_material_ai_products	is_primary	tinyint	NO	MUL	1
+sppg_material_ai_products	created_at	timestamp	YES		current_timestamp()
+sppg_material_ai_products	updated_at	timestamp	YES		current_timestamp()
+sppg_material_plu_mappings	id	bigint	NO	PRI	NULL
+sppg_material_plu_mappings	material_code	varchar	NO	MUL	NULL
+sppg_material_plu_mappings	plu_number	varchar	NO	MUL	NULL
+sppg_material_plu_mappings	mapping_type	enum	NO		'direct'
+sppg_material_plu_mappings	conversion_factor	decimal	NO		1.0000
+sppg_material_plu_mappings	is_primary	tinyint	NO	MUL	1
+sppg_material_plu_mappings	notes	varchar	YES		NULL
+sppg_material_plu_mappings	created_at	timestamp	YES		current_timestamp()
+sppg_material_plu_mappings	updated_at	timestamp	YES		current_timestamp()
+sppg_menus	id	bigint	NO	PRI	NULL
+sppg_menus	menu_code	varchar	NO	UNI	NULL
+sppg_menus	menu_name	varchar	NO		NULL
+sppg_menus	description	text	YES		NULL
+sppg_menus	target_group	enum	NO	MUL	NULL
+sppg_menus	is_active	tinyint	YES	MUL	1
+sppg_menus	created_at	timestamp	YES		current_timestamp()
+sppg_menus	updated_at	timestamp	YES		current_timestamp()
+sppg_menu_items	id	bigint	NO	PRI	NULL
+sppg_menu_items	menu_id	bigint	NO	MUL	NULL
+sppg_menu_items	material_code	varchar	NO	MUL	NULL
+sppg_menu_items	quantity_grams_per_portion	decimal	NO		NULL
+sppg_menu_items	is_optional	tinyint	YES		0
+sppg_menu_items	created_at	timestamp	YES		current_timestamp()
+sppg_menu_items	updated_at	timestamp	YES		current_timestamp()
+sppg_menu_logs	id	bigint	NO	PRI	NULL
+sppg_menu_logs	sppg_id	varchar	NO	MUL	NULL
+sppg_menu_logs	menu_date	date	NO		NULL
+sppg_menu_logs	meal_type	enum	NO		NULL
+sppg_menu_logs	menu_id	bigint	NO	MUL	NULL
+sppg_menu_logs	target_group	enum	NO	MUL	NULL
+sppg_menu_logs	portions	int	NO		NULL
+sppg_menu_logs	beneficiaries_count	int	NO		NULL
+sppg_menu_logs	created_at	timestamp	YES		current_timestamp()
+sppg_menu_logs	updated_at	timestamp	YES		current_timestamp()
+transactions	id	bigint	NO	PRI	NULL
+transactions	transaction_ref	varchar	NO	UNI	NULL
+transactions	transaction_type	enum	NO	MUL	NULL
+transactions	customer_type	enum	NO		NULL
+transactions	customer_name	varchar	NO		NULL
+transactions	customer_address	text	YES		NULL
+transactions	province_id	int	YES	MUL	NULL
+transactions	regency_id	int	YES	MUL	NULL
+transactions	district_id	int	YES	MUL	NULL
+transactions	village_id	int	YES	MUL	NULL
+transactions	street_address	text	YES		NULL
+transactions	postal_code	varchar	YES		NULL
+transactions	branch_id	bigint	YES	MUL	NULL
+transactions	user_id	bigint	NO	MUL	NULL
+transactions	transaction_date	date	NO		NULL
+transactions	total_amount	decimal	NO		NULL
+transactions	status	enum	YES	MUL	'pending'
+transactions	notes	text	YES		NULL
+transactions	created_at	timestamp	YES		current_timestamp()
+transactions	updated_at	timestamp	YES		current_timestamp()
+transaction_items	id	bigint	NO	PRI	NULL
+transaction_items	transaction_id	bigint	NO	MUL	NULL
+transaction_items	plu_id	bigint	YES	MUL	NULL
+transaction_items	plu_number	varchar	NO		NULL
+transaction_items	product_name	varchar	NO		NULL
+transaction_items	quantity	decimal	NO		NULL
+transaction_items	unit	varchar	NO		NULL
+transaction_items	unit_price	decimal	NO		NULL
+transaction_items	subtotal	decimal	NO		NULL
+transaction_items	created_at	timestamp	YES		current_timestamp()
+user_accounts	id_user	int	NO	PRI	NULL
+user_accounts	id_orang	int	NO		NULL
+user_accounts	username	varchar	NO	UNI	NULL
+user_accounts	email	varchar	NO	UNI	NULL
+user_accounts	password_hash	varchar	NO		NULL
+user_accounts	role_id	int	NO		3
+user_accounts	branch_id	int	YES		NULL
+user_accounts	status_aktif	tinyint	NO		1
+user_accounts	last_login_at	datetime	YES		NULL
+user_accounts	created_at	datetime	NO		current_timestamp()
+user_accounts	updated_at	datetime	YES		NULL
+villages	id	int	NO	PRI	NULL
+villages	district_id	int	NO	MUL	NULL
+villages	name	varchar	NO	MUL	NULL
+villages	code	varchar	NO	UNI	NULL
+villages	postal_code	varchar	YES	MUL	NULL
+villages	created_at	timestamp	YES		current_timestamp()
+villages	updated_at	timestamp	YES		current_timestamp()

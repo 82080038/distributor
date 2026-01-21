@@ -83,7 +83,7 @@ if ($stmt_check) {
     $res = $stmt_check->get_result();
     if ($row = $res->fetch_assoc()) {
         $users_exist = false;
-        $count_users_sql = "SELECT COUNT(*) AS total FROM user";
+        $count_users_sql = "SELECT COUNT(*) AS total FROM user_accounts";
         $stmt_users = $conn->prepare($count_users_sql);
         if ($stmt_users) {
             $stmt_users->execute();
@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $alamat = $address_validation['data']['street_address'];
         $postal_code = $address_validation['data']['postal_code'];
         $tipe_alamat = $address_validation['data']['tipe_alamat'];
-        $check_user_sql = "SELECT id_user FROM user WHERE username = ? OR email = ? LIMIT 1";
+        $check_user_sql = "SELECT id_user FROM user_accounts WHERE username = ? OR email = ? LIMIT 1";
         $stmt = $conn->prepare($check_user_sql);
         if ($stmt) {
             $stmt->bind_param('ss', $username, $email);
@@ -212,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $id_orang = $conn->insert_id;
                     $stmt_orang->close();
 
-                    $insert_sql = "INSERT INTO user (id_orang, username, email, password_hash, role_id, status_aktif)
+                    $insert_sql = "INSERT INTO user_accounts (id_orang, username, email, password_hash, role_id, status_aktif)
                                    VALUES (?, ?, ?, ?, ?, 1)";
                     $stmt_ins = $conn->prepare($insert_sql);
                     if (!$stmt_ins) {

@@ -1,43 +1,11 @@
 <?php
-// Error reporting configuration
-error_reporting(E_ALL);
-ini_set('display_errors', 0); // Don't display errors in production
-ini_set('log_errors', 1); // Log errors to file
-ini_set('error_log', __DIR__ . '/logs/php_errors.log');
+/**
+ * Universal Configuration Functions
+ * Shared across all platform-specific config files
+ */
 
-session_start([
-    'cookie_httponly' => true,
-    'cookie_secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
-    'cookie_samesite' => 'Strict',
-    'use_strict_mode' => true
-]);
-
-// Traditional PHP/MySQL Configuration for phpMyAdmin
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '8208'); // Update with your phpMyAdmin MySQL password
-define('DB_NAME', 'distributor');
-define('DB_NAME_ALAMAT', 'alamat_db');
-define('DB_PORT', 3306); // Standard MySQL port
-
-// Create database connections
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
-$conn_alamat = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME_ALAMAT, DB_PORT);
-
-if ($conn->connect_error) {
-    error_log("Database connection failed: " . $conn->connect_error);
-    die('Database connection failed. Please check your phpMyAdmin MySQL configuration.');
-}
-$conn->set_charset('utf8mb4');
-
-if ($conn_alamat->connect_error) {
-    error_log("Alamat database connection failed: " . $conn_alamat->connect_error);
-    // Don't die, just log the error for alamat_db
-}
-$conn_alamat->set_charset('utf8mb4');
-
-function clean($value)
-{
+// Security and Utility Functions
+function clean($value) {
     if ($value === null) {
         return '';
     }
@@ -47,7 +15,6 @@ function clean($value)
     return htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
-// Function to validate and sanitize input
 function validate_input($data, $type = 'string') {
     if ($data === null) {
         return null;
@@ -80,23 +47,13 @@ function verify_csrf_token($token) {
     return hash_equals($_SESSION['csrf_token'], $token);
 }
 
-function redirect($url)
-{
-    // Clear any existing output buffer
-    while (ob_get_level()) {
-        ob_end_clean();
-    }
-    
-    // Set proper headers to prevent caching and ensure redirect
-    header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-    header('Pragma: no-cache');
-    header('Expires: Thu, 19 Nov 1981 08:52:00 GMT');
-    header('Location: ' . $url, true, 302);
+function redirect($url) {
+    header('Location: ' . $url);
     exit();
 }
 
-function format_date_id($date)
-{
+// Date Functions (Indonesian Format)
+function format_date_id($date) {
     if ($date === null || $date === '') {
         return '';
     }
@@ -108,8 +65,7 @@ function format_date_id($date)
     return $dt->format('d-m-Y');
 }
 
-function parse_date_id_to_db($value)
-{
+function parse_date_id_to_db($value) {
     if ($value === null) {
         return '';
     }
@@ -133,8 +89,8 @@ function parse_date_id_to_db($value)
     return $value;
 }
 
-function number_to_indonesian_words($value)
-{
+// Currency Functions (Indonesian Rupiah)
+function number_to_indonesian_words($value) {
     $num = (float)$value;
     if (!is_finite($num)) {
         return '';
@@ -147,8 +103,7 @@ function number_to_indonesian_words($value)
     return trim($words) . ' Rupiah';
 }
 
-function angka_to_kata_id($x)
-{
+function angka_to_kata_id($x) {
     $units = [
         '',
         'Satu',
@@ -213,7 +168,7 @@ function angka_to_kata_id($x)
     }
     if ($x < 1000000000000) {
         $billions = (int)floor($x / 1000000000);
-        $restBillion = $x % 1000000000;
+        $restBillion = $x % 1000000;
         $str = angka_to_kata_id($billions) . ' Miliar';
         if ($restBillion > 0) {
             $str .= ' ' . angka_to_kata_id($restBillion);
@@ -229,3 +184,4 @@ function angka_to_kata_id($x)
     return $str;
 }
 
+?>
