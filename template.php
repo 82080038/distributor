@@ -130,6 +130,25 @@ $is_transaksi_active = in_array($current_page, ['purchases.php', 'sales.php'], t
     if (typeof bootstrap === 'undefined') {
         document.write('<script src="https://unpkg.com/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"><\/script>');
     }
+    
+    // Initialize all dropdowns after DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap dropdowns
+        var dropdownTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
+        var dropdownList = dropdownTriggerList.map(function (dropdownTriggerEl) {
+            return new bootstrap.Dropdown(dropdownTriggerEl);
+        });
+        
+        // Re-initialize dropdowns when dynamic content is loaded
+        if (typeof $ !== 'undefined') {
+            $(document).on('shown.bs.modal', function() {
+                var modalDropdowns = [].slice.call(document.querySelectorAll('.modal [data-bs-toggle="dropdown"]'));
+                modalDropdowns.map(function (dropdownTriggerEl) {
+                    return new bootstrap.Dropdown(dropdownTriggerEl);
+                });
+            });
+        }
+    });
     </script>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">

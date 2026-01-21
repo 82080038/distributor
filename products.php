@@ -441,7 +441,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$sqlCategories = "SELECT id, name FROM product_categories ORDER BY name";
+$sqlCategories = "SELECT id_category as id, name FROM product_categories ORDER BY name";
 $resCategories = $conn->query($sqlCategories);
 if ($resCategories) {
     while ($rowCat = $resCategories->fetch_assoc()) {

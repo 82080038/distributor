@@ -5,12 +5,14 @@ ini_set('display_errors', 0); // Don't display errors in production
 ini_set('log_errors', 1); // Log errors to file
 ini_set('error_log', __DIR__ . '/logs/php_errors.log');
 
-session_start([
-    'cookie_httponly' => true,
-    'cookie_secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
-    'cookie_samesite' => 'Strict',
-    'use_strict_mode' => true
-]);
+if (session_status() === PHP_SESSION_NONE) {
+    session_start([
+        'cookie_httponly' => true,
+        'cookie_secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+        'cookie_samesite' => 'Strict',
+        'use_strict_mode' => true
+    ]);
+}
 
 // Traditional PHP/MySQL Configuration for phpMyAdmin
 define('DB_HOST', 'localhost');

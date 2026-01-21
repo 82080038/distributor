@@ -28,7 +28,7 @@
                             <a href="products.php" class="btn btn-outline-danger">Reset</a>
                             <button type="button" class="btn btn-primary ms-md-2" data-bs-toggle="modal" data-bs-target="#productModal">+ Produk</button>
                             <div class="btn-group ms-md-2 dropdown">
-                                <button type="button" id="productColumnDropdownToggle" class="btn btn-outline-secondary dropdown-toggle">
+                                <button type="button" id="productColumnDropdownToggle" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     Kolom
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 220px;">
